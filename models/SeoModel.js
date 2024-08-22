@@ -1,0 +1,161 @@
+const { DataTypes } = require('sequelize');
+const conn = require('../connection/connection');
+
+const SeoModel = conn.define('SeoModel',{
+    metaTitle:{
+        type:DataTypes.TEXT('long'),
+        allowNull: true
+    },
+    metaKeyword:{
+        type:DataTypes.TEXT('long'),
+        allowNull: true
+    },
+    metaDescription:{
+        type:DataTypes.TEXT('long'),
+        allowNull: true
+    },
+    metaScript:{
+        type:DataTypes.TEXT('long'),
+        allowNull: true
+    },
+    slug:{
+        type:DataTypes.TEXT,
+        allowNull:true
+    },
+    collegeId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'colleges',
+            key:'id'
+        },
+        allowNull:true
+    },
+    courseId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'college_courses',
+            key:'id'
+        },
+        allowNull:true
+    },
+    programmeId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'college_programmes',
+            key:'id'
+        },
+        allowNull:true
+    },
+    specializationId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'specializations',
+            key:'id'
+        },
+        allowNull:true
+    },
+    examId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'exams',
+            key:'id'
+        },
+        allowNull:true
+    },
+    articleId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'articles',
+            key:'id'
+        },
+        allowNull:true
+    },
+    cmsPageId:{ 
+        type:DataTypes.INTEGER,
+        references:{
+            model:'cms_page',
+            key:'id'
+        },
+        allowNull:true
+    },
+    navigationId:{ 
+        type:DataTypes.INTEGER,
+        references:{
+            model:'navigations',
+            key:'id'
+        },
+        allowNull:true
+    },
+    NavigationCategoryId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'exam_category',
+            key:'id'
+        },
+        allowNull:true
+    },
+    NavigationSubCategoryId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'exam_sub_category',
+            key:'id'
+        },
+        allowNull:true
+    },
+    collegeSegmentId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'college_segments',
+            key:'id'
+        },
+        allowNull:true
+    },
+    examNavigationId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'exam_navigations',
+            key:'id'
+        },
+        allowNull:true
+    },
+    navigationContentId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'navigation_contents',
+            key:'id'
+        },
+        allowNull:true
+    },
+    examMetaInfoId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'exam_meta_info',
+            key:'id'
+        },
+        allowNull:true
+    },
+    collegeCityPageSettingId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'college_city_page_settings',
+            key:'id'
+        },
+        allowNull:true
+    },
+    groupDiscussionTopicId:{
+        type:DataTypes.INTEGER,
+        references:{
+            model:'group_discussion_topics',
+            key:'id'
+        },
+        allowNull:true
+        
+    }
+
+ },{
+    tableName: 'seo_tags',
+    paranoid: true,
+ });
+
+
+ module.exports = SeoModel;
