@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const conn = require('../connection/connection');
+const Posts = require('./posts');
 const categories = conn.define('categories', {
     id: {
       autoIncrement: true,
@@ -73,6 +74,7 @@ const categories = conn.define('categories', {
   });
 
 categories.hasMany(categories,{foreignKey:'parent_id',as:'SubCategories'});
+categories.hasMany(Posts,{foreignKey:'category_id'});
 
   module.exports = categories;
 
