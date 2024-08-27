@@ -13,6 +13,7 @@ var auth = require('./routes/auth');
 var signup = require('./routes/signup');
 var category = require('./routes/category');
 var posts = require('./routes/posts');
+var index = require('./routes/first');
 
 
 
@@ -55,7 +56,7 @@ app.use(fileUpload());
 
 
 
-
+// app.use('/',index);
 app.use('/auth', auth);
 app.use('/signup',signup);
 app.use('/category',category);
