@@ -38,6 +38,26 @@ router.get('/posts', async (req,res) => {
 });
 
 
+router.get('/:slug', async (req,res) => {
+
+    const slug = req.params.slug;
+
+    const data = await categories.findOne({
+        where:{
+            name_slug:slug
+        },
+        include:[
+            {
+                model:Posts
+            }
+        ]
+    });
+
+    return res.status(200).json(data);
+
+});
+
+
 
 
 module.exports = router;

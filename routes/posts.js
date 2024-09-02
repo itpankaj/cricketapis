@@ -67,4 +67,25 @@ router.get('/homepage/featured', async (req,res) => {
 });
 
 
+
+router.get('/:slug', async (req,res) => {
+    
+    const slug = req.params.slug;
+
+    const data = await Posts.findOne({
+        where:{
+            title_slug:slug
+        },
+        include:[
+            {
+                model:PostFiles
+            }
+        ]
+    });
+
+    return res.status(200).json(data);
+
+});
+
+
 module.exports = router;
