@@ -25,6 +25,9 @@ router.get('/show', async (req,res) => {
 router.get('/posts', async (req,res) => {
 
     const data = await categories.findAll({
+        where:{
+            parent_id:0
+        },
         include:[
             {
                 model:Posts,
