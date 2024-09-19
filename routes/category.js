@@ -25,9 +25,6 @@ router.get('/show', async (req,res) => {
 router.get('/posts', async (req,res) => {
 
     const data = await categories.findAll({
-        where:{
-            show_at_homepage:1
-        },
         include:[
             {
                 model:Posts,
