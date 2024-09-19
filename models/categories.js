@@ -75,6 +75,7 @@ const categories = conn.define('categories', {
 
 categories.hasMany(categories,{foreignKey:'parent_id',as:'SubCategories'});
 categories.hasMany(Posts,{foreignKey:'category_id'});
+Posts.belongsTo(categories,{foreignKey:'category_id'});
 
   module.exports = categories;
 

@@ -121,6 +121,9 @@ router.get('/:slug', async (req,res) => {
         },
         include:[
             {
+                model:categories
+            },
+            {
                 model:PostFiles
             }
         ]
