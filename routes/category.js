@@ -25,6 +25,7 @@ router.get('/show', async (req,res) => {
 router.get('/posts', async (req,res) => {
 
     const data = await categories.findAll({
+        subQuery:false,
         where:{
             parent_id:0
         },
