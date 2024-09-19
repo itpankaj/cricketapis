@@ -37,6 +37,9 @@ router.get('/posts', async (req,res) => {
             {
                 model:categories,
                 as:'SubCategories',
+                where:{
+                    show_at_homepage:1 
+                },
                 include:[
                     {
                         model:Posts,
