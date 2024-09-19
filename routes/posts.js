@@ -3,6 +3,7 @@ const router = express.Router();
 const { body, validationResult, param } = require('express-validator');
 const Posts = require('../models/posts');
 const PostFiles = require('../models/post_files');
+const categories = require('../models/categories');
 
 router.get('/all', async (req,res) => {
 
@@ -37,6 +38,48 @@ router.get('/homepage/slider-image', async (req,res) => {
             ]
         ],
         limit:10});
+
+    return res.status(200).json(data);
+
+});
+
+
+
+router.get('/homepage/recommended/:slug', async (req,res) => {
+
+    const slug = req.params.slug;
+
+    let data = [];
+
+    const categoryId = await categories.findOne({where:{
+        name_slug:slug
+    }})
+
+    if(categoryId) {
+
+
+        console.log('----->')
+
+         data = await Posts.findAll({
+            where:{
+                is_recommended:1,
+                category_id:categoryId.id
+            },
+            include:[
+                {
+                    model:PostFiles
+                }
+            ],
+            order:[
+                [
+                    'id',
+                    'DESC'
+                ]
+            ],
+            limit:10});
+    }
+
+   
 
     return res.status(200).json(data);
 
