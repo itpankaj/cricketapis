@@ -26,7 +26,8 @@ router.get('/posts', async (req,res) => {
 
     const data = await categories.findAll({
         where:{
-            parent_id:0
+            parent_id:0,
+            show_at_homepage:1
         },
         include:[
             {
