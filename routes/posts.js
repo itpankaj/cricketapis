@@ -57,7 +57,9 @@ router.get('/all', async (req,res) => {
       }
     );
 
-    return res.status(200).json(data);
+    const totalPosts = await Posts.count();
+
+    return res.status(200).json({data:data,total:totalPosts});
 
 });
 
