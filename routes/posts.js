@@ -4,6 +4,7 @@ const { body, validationResult, param } = require('express-validator');
 const Posts = require('../models/posts');
 const PostFiles = require('../models/post_files');
 const categories = require('../models/categories');
+var { Op, where } = require('sequelize');
 
 router.get('/all', async (req,res) => {
 
