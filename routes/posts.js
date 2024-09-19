@@ -7,13 +7,54 @@ const categories = require('../models/categories');
 
 router.get('/all', async (req,res) => {
 
+    const search = req.query.search;
+
+    var whereCondition = {};
+
+    const offset = (req.query.page == 1) ? 0 : (req.query.page-1) * 20;
+
+    const limit = 20;
+
+    if(search) {
+        
+        const searchKewords = search.split(' ');
+
+        const searchArr = [];
+
+        for(itemSerch of searchKewords) {
+
+            const item = {
+                title: {
+                    [Op.like]: '%'+itemSerch+'%'
+                }
+            }
+
+            searchArr.push(item)
+
+        } 
+
+        whereCondition = {
+            [Op.and]: searchArr
+        }
+
+    }
+
     const data = await Posts.findAll({
+
+        where:whereCondition,
+
+        limit:limit,
+
+        offset:offset,
+
         include:[
             {
                 model:PostFiles
             }
         ],
-        limit:10});
+        
+      }
+    );
 
     return res.status(200).json(data);
 
