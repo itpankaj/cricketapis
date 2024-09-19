@@ -12,9 +12,9 @@ router.get('/all', async (req,res) => {
 
     var whereCondition = {};
 
-    const offset = (req.query.page == 1) ? 0 : (req.query.page-1) * 20;
+    const offset = (req.query.page == 1) ? 0 : (req.query.page-1) * 2;
 
-    const limit = 20;
+    const limit = 2;
 
     if(search) {
         
