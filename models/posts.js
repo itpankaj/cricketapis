@@ -288,4 +288,5 @@ const PostFiles = require('./post_files');
 
 Posts.hasMany(PostFiles,{foreignKey:'post_id'});
 
+
 module.exports = Posts;
