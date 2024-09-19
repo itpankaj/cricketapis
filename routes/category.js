@@ -25,7 +25,6 @@ router.get('/show', async (req,res) => {
 router.get('/posts', async (req,res) => {
 
     const data = await categories.findAll({
-        subQuery:false,
         where:{
             parent_id:0
         },
@@ -33,6 +32,16 @@ router.get('/posts', async (req,res) => {
             {
                 model:Posts,
                 limit:5
+            },
+            {
+                model:categories,
+                as:'SubCategories',
+                include:[
+                    {
+                        model:Posts,
+                        limit:5
+                    }
+                ]
             }
         ]
     });
