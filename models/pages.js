@@ -94,7 +94,7 @@ module.exports =  sequelize.define('pages', {
   }, {
     sequelize,
     tableName: 'pages',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
