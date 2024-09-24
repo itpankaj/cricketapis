@@ -252,6 +252,10 @@ router.get('/:slug', async (req,res) => {
             ]
         });
 
+        if(!data) {
+            return res.status(404).json({message:"post not found"});
+        }
+
         const count = await PostPageViewMonth.count({
            where:{
             post_id:data.id
