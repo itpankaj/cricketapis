@@ -115,29 +115,24 @@ router.get('/:slug', async (req,res) => {
                 model:Posts,
                 include:[
                     {
-                        model:Posts,
+                        model:PostImages
+                    },
+                    {
+                        model:users,
+                        attributes:['id','username','email']
+                    },
+                    {
+                        model:categories, attributes:['id','name','name_slug'],
                         include:[
                             {
-                                model:PostImages
-                            },
-                            {
-                                model:users,
-                                attributes:['id','username','email']
-                            },
-                            {
-                                model:categories, attributes:['id','name','name_slug'],
-                                include:[
-                                    {
-                                        model:categories,
-                                        as:'SubCategories',
-                                        attributes:['id','name','name_slug']
-                                    }
-                                ]
-                            },
-                            {
-                                model:PostFiles
+                                model:categories,
+                                as:'SubCategories',
+                                attributes:['id','name','name_slug']
                             }
                         ]
+                    },
+                    {
+                        model:PostFiles
                     }
                 ]
             }
