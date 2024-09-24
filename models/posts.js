@@ -2,6 +2,8 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../connection/connection');
 const PostFiles = require('./post_files');
 const users = require('./users');
+const PostPageViewMonth = require('./post_pageviews_month');
+const PostImages = require('./post_images');
  const Posts = sequelize.define('posts', {
     id: {
       autoIncrement: true,
@@ -295,6 +297,8 @@ const users = require('./users');
 
 
 Posts.hasMany(PostFiles,{foreignKey:'post_id'});
+Posts.hasMany(PostPageViewMonth,{foreignKey:'post_id'});
+Posts.hasMany(PostImages,{foreignKey:'post_id'});
 Posts.belongsTo(users,{foreignKey:'user_id'});
 
 

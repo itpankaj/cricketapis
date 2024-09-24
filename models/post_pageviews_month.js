@@ -1,6 +1,7 @@
-const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('post_pageviews_month', {
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../connection/connection');
+const PostPageViewMonth =  sequelize.define('post_pageviews_month', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -27,11 +28,16 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DOUBLE,
       allowNull: false,
       defaultValue: 0
-    }
+    },
+    createdAt: {
+      field: 'created_at',
+      type: DataTypes.DATE,
+  },
+ 
   }, {
     sequelize,
     tableName: 'post_pageviews_month',
-    timestamps: true,
+    timestamps:false,
     indexes: [
       {
         name: "PRIMARY",
@@ -64,4 +70,6 @@ module.exports = function(sequelize, DataTypes) {
       },
     ]
   });
-};
+
+  module.exports = PostPageViewMonth;
+

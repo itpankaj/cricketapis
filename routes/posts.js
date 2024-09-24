@@ -6,6 +6,9 @@ const PostFiles = require('../models/post_files');
 const categories = require('../models/categories');
 var { Op, where } = require('sequelize');
 const users = require('../models/users');
+const PostImages = require('../models/post_images');
+const sequelize = require('../connection/connection');
+const PostPageViewMonth = require('../models/post_pageviews_month');
 
 router.get('/all', async (req,res) => {
 
@@ -49,17 +52,7 @@ router.get('/all', async (req,res) => {
     
             limit:limit,
     
-            offset:offset,
-    
-            include:[
-                {
-                    model:users,
-                    attributes:['id','username','email']
-                },
-                {
-                    model:PostFiles
-                }
-            ],
+            offset:offset
             
           }
         );
@@ -85,6 +78,9 @@ router.get('/homepage/slider-image', async (req,res) => {
             is_slider:1
         },
         include:[
+            {
+                model:PostImages
+            },
             {
                 model:users,
                 attributes:['id','username','email']
@@ -140,6 +136,9 @@ router.get('/homepage/recommended/:slug', async (req,res) => {
             },
             include:[
                 {
+                    model:PostImages
+                },
+                {
                     model:users,
                     attributes:['id','username','email']
                 },
@@ -182,6 +181,9 @@ router.get('/homepage/featured', async (req,res) => {
         },
         include:[
             {
+                model:PostImages
+            },
+            {
                 model:users,
                 attributes:['id','username','email']
             },
@@ -215,35 +217,55 @@ router.get('/homepage/featured', async (req,res) => {
 
 
 router.get('/:slug', async (req,res) => {
+
+
+    try {
+
+        const slug = req.params.slug;
+
+        const data = await Posts.findOne({
+            where:{
+                title_slug:slug
+            },
+            include:[
+               
+                {
+                    model:PostImages
+                },
+                {
+                    model:users,
+                    attributes:['id','username','email']
+                },
+                {
+                    model:categories, attributes:['id','name','name_slug'],
+                    include:[
+                        {
+                            model:categories,
+                            as:'SubCategories',
+                            attributes:['id','name','name_slug']
+                        }
+                    ]
+                },
+                {
+                    model:PostFiles
+                }
+            ]
+        });
+
+        const count = await PostPageViewMonth.count({
+           where:{
+            post_id:data.id
+           }
+        });
     
-    const slug = req.params.slug;
+        return res.status(200).json({data:data,count:count});
+        
+    } catch (error) {
 
-    const data = await Posts.findOne({
-        where:{
-            title_slug:slug
-        },
-        include:[
-            {
-                model:users,
-                attributes:['id','username','email']
-            },
-            {
-                model:categories, attributes:['id','name','name_slug'],
-                include:[
-                    {
-                        model:categories,
-                        as:'SubCategories',
-                        attributes:['id','name','name_slug']
-                    }
-                ]
-            },
-            {
-                model:PostFiles
-            }
-        ]
-    });
-
-    return res.status(200).json(data);
+        return res.json({'message':error.message})
+    }
+    
+  
 
 });
 
