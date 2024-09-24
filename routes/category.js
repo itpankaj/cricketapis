@@ -3,6 +3,9 @@ const router = express.Router();
 const { body, validationResult, param } = require('express-validator');
 const categories = require('../models/categories');
 const Posts = require('../models/posts');
+const PostImages = require('../models/post_images');
+const users = require('../models/users');
+const PostFiles = require('../models/post_files');
 
 router.get('/show', async (req,res) => {
 
@@ -43,6 +46,28 @@ router.get('/posts', async (req,res) => {
                 include:[
                     {
                         model:Posts,
+                        include:[
+                            {
+                                model:PostImages
+                            },
+                            {
+                                model:users,
+                                attributes:['id','username','email']
+                            },
+                            {
+                                model:categories, attributes:['id','name','name_slug'],
+                                include:[
+                                    {
+                                        model:categories,
+                                        as:'SubCategories',
+                                        attributes:['id','name','name_slug']
+                                    }
+                                ]
+                            },
+                            {
+                                model:PostFiles
+                            }
+                        ],
                         limit:5
                     }
                 ]
