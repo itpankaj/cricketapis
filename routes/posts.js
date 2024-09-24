@@ -5,61 +5,75 @@ const Posts = require('../models/posts');
 const PostFiles = require('../models/post_files');
 const categories = require('../models/categories');
 var { Op, where } = require('sequelize');
+const users = require('../models/users');
 
 router.get('/all', async (req,res) => {
 
-    const search = req.query.search;
+    try{
 
-    var whereCondition = {};
+        const search = req.query.search;
 
-    const offset = (req.query.page == 1) ? 0 : (req.query.page-1) * 5;
-
-    const limit = 5;
-
-    if(search) {
-        
-        const searchKewords = search.split(' ');
-
-        const searchArr = [];
-
-        for(itemSerch of searchKewords) {
-
-            const item = {
-                title: {
-                    [Op.like]: '%'+itemSerch+'%'
+        var whereCondition = {};
+    
+        const offset = (req.query.page == 1) ? 0 : (req.query.page-1) * 5;
+    
+        const limit = 5;
+    
+        if(search) {
+            
+            const searchKewords = search.split(' ');
+    
+            const searchArr = [];
+    
+            for(itemSerch of searchKewords) {
+    
+                const item = {
+                    title: {
+                        [Op.like]: '%'+itemSerch+'%'
+                    }
                 }
+    
+                searchArr.push(item)
+    
+            } 
+    
+            whereCondition = {
+                [Op.and]: searchArr
             }
-
-            searchArr.push(item)
-
-        } 
-
-        whereCondition = {
-            [Op.and]: searchArr
+    
         }
+    
+        const data = await Posts.findAll({
+    
+            where:whereCondition,
+    
+            limit:limit,
+    
+            offset:offset,
+    
+            include:[
+                {
+                    model:users,
+                    attributes:['id','username','email']
+                },
+                {
+                    model:PostFiles
+                }
+            ],
+            
+          }
+        );
+    
+        const totalPosts = await Posts.count();
+    
+        return res.status(200).json({data:data,total:totalPosts});
 
+
+    }catch(err) {
+        return res.json({'error':err.message});
     }
 
-    const data = await Posts.findAll({
-
-        where:whereCondition,
-
-        limit:limit,
-
-        offset:offset,
-
-        include:[
-            {
-                model:PostFiles
-            }
-        ],
-        
-      }
-    );
-
-    const totalPosts = await Posts.count();
-
-    return res.status(200).json({data:data,total:totalPosts});
+   
 
 });
 
@@ -71,6 +85,10 @@ router.get('/homepage/slider-image', async (req,res) => {
             is_slider:1
         },
         include:[
+            {
+                model:users,
+                attributes:['id','username','email']
+            },
             {
                 model:categories,
                 attributes:['id','name','name_slug'],
@@ -122,6 +140,10 @@ router.get('/homepage/recommended/:slug', async (req,res) => {
             },
             include:[
                 {
+                    model:users,
+                    attributes:['id','username','email']
+                },
+                {
                     model:categories,
                     attributes:['id','name','name_slug'],
                     include:[
@@ -160,6 +182,10 @@ router.get('/homepage/featured', async (req,res) => {
         },
         include:[
             {
+                model:users,
+                attributes:['id','username','email']
+            },
+            {
                 model:categories,
                 attributes:['id','name','name_slug'],
                 include:[
@@ -197,6 +223,10 @@ router.get('/:slug', async (req,res) => {
             title_slug:slug
         },
         include:[
+            {
+                model:users,
+                attributes:['id','username','email']
+            },
             {
                 model:categories, attributes:['id','name','name_slug'],
                 include:[

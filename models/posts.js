@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../connection/connection');
 const PostFiles = require('./post_files');
+const users = require('./users');
  const Posts = sequelize.define('posts', {
     id: {
       autoIncrement: true,
@@ -191,11 +192,18 @@ const PostFiles = require('./post_files');
       type: DataTypes.BOOLEAN,
       allowNull: true,
       defaultValue: 0
-    }
+    },
+    createdAt: {
+      field: 'created_at',
+      type: DataTypes.DATE,
+  },
+  updatedAt: {
+      field: 'updated_at',
+      type: DataTypes.DATE,
+  },
   }, {
     sequelize,
     tableName: 'posts',
-    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -287,6 +295,7 @@ const PostFiles = require('./post_files');
 
 
 Posts.hasMany(PostFiles,{foreignKey:'post_id'});
+Posts.belongsTo(users,{foreignKey:'user_id'});
 
 
 module.exports = Posts;
