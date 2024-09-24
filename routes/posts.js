@@ -111,6 +111,15 @@ router.get('/homepage/recommended/:slug', async (req,res) => {
             },
             include:[
                 {
+                    model:categories,
+                    include:[
+                        {
+                            model:categories,
+                            as:'SubCategories',
+                        }
+                    ]
+                },
+                {
                     model:PostFiles
                 }
             ],
@@ -137,6 +146,15 @@ router.get('/homepage/featured', async (req,res) => {
             is_featured:1
         },
         include:[
+            {
+                model:categories,
+                include:[
+                    {
+                        model:categories,
+                        as:'SubCategories',
+                    }
+                ]
+            },
             {
                 model:PostFiles
             }
@@ -165,7 +183,13 @@ router.get('/:slug', async (req,res) => {
         },
         include:[
             {
-                model:categories
+                model:categories,
+                include:[
+                    {
+                        model:categories,
+                        as:'SubCategories',
+                    }
+                ]
             },
             {
                 model:PostFiles
