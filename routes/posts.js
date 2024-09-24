@@ -72,6 +72,17 @@ router.get('/homepage/slider-image', async (req,res) => {
         },
         include:[
             {
+                model:categories,
+                attributes:['id','name','name_slug'],
+                include:[
+                    {
+                        model:categories,
+                        as:'SubCategories',
+                        attributes:['id','name','name_slug']
+                    }
+                ]
+            },
+            {
                 model:PostFiles
             }
         ],
@@ -112,10 +123,12 @@ router.get('/homepage/recommended/:slug', async (req,res) => {
             include:[
                 {
                     model:categories,
+                    attributes:['id','name','name_slug'],
                     include:[
                         {
                             model:categories,
                             as:'SubCategories',
+                            attributes:['id','name','name_slug']
                         }
                     ]
                 },
@@ -148,10 +161,12 @@ router.get('/homepage/featured', async (req,res) => {
         include:[
             {
                 model:categories,
+                attributes:['id','name','name_slug'],
                 include:[
                     {
                         model:categories,
                         as:'SubCategories',
+                        attributes:['id','name','name_slug']
                     }
                 ]
             },
@@ -183,11 +198,12 @@ router.get('/:slug', async (req,res) => {
         },
         include:[
             {
-                model:categories,
+                model:categories, attributes:['id','name','name_slug'],
                 include:[
                     {
                         model:categories,
                         as:'SubCategories',
+                        attributes:['id','name','name_slug']
                     }
                 ]
             },
