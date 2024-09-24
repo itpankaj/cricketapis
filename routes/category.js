@@ -35,6 +35,28 @@ router.get('/posts', async (req,res) => {
         include:[
             {
                 model:Posts,
+                include:[
+                    {
+                        model:PostImages
+                    },
+                    {
+                        model:users,
+                        attributes:['id','username','email']
+                    },
+                    {
+                        model:categories, attributes:['id','name','name_slug'],
+                        include:[
+                            {
+                                model:categories,
+                                as:'SubCategories',
+                                attributes:['id','name','name_slug']
+                            }
+                        ]
+                    },
+                    {
+                        model:PostFiles
+                    }
+                ],
                 limit:5
             },
             {
