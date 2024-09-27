@@ -256,6 +256,13 @@ router.get('/:slug', async (req,res) => {
             return res.status(404).json({message:"post not found"});
         }
 
+        // add post view record
+
+        await PostPageViewMonth.create({
+            post_id:data.id,
+
+        });
+
         const count = await PostPageViewMonth.count({
            where:{
             post_id:data.id
