@@ -9,6 +9,8 @@ const users = require('../models/users');
 const PostImages = require('../models/post_images');
 const sequelize = require('../connection/connection');
 const PostPageViewMonth = require('../models/post_pageviews_month');
+const Posttags = require('../models/post_tags');
+const Tags = require('../models/tags');
 
 router.get('/all', async (req,res) => {
 
@@ -79,6 +81,15 @@ router.get('/homepage/slider-image', async (req,res) => {
         },
         include:[
             {
+                model:Posttags,
+                attributes:['id'],
+                include:[
+                    {
+                        model:Tags
+                    }
+                ]
+            },
+            {
                 model:PostImages
             },
             {
@@ -136,6 +147,15 @@ router.get('/homepage/recommended/:slug', async (req,res) => {
             },
             include:[
                 {
+                    model:Posttags,
+                    attributes:['id'],
+                    include:[
+                        {
+                            model:Tags
+                        }
+                    ]
+                },
+                {
                     model:PostImages
                 },
                 {
@@ -180,6 +200,15 @@ router.get('/homepage/featured', async (req,res) => {
             is_featured:1
         },
         include:[
+            {
+                model:Posttags,
+                attributes:['id'],
+                include:[
+                    {
+                        model:Tags
+                    }
+                ]
+            },
             {
                 model:PostImages
             },
@@ -229,6 +258,15 @@ router.get('/:slug', async (req,res) => {
             },
             include:[
                
+                {
+                    model:Posttags,
+                    attributes:['id'],
+                    include:[
+                        {
+                            model:Tags
+                        }
+                    ]
+                },
                 {
                     model:PostImages
                 },

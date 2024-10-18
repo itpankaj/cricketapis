@@ -4,6 +4,7 @@ const PostFiles = require('./post_files');
 const users = require('./users');
 const PostPageViewMonth = require('./post_pageviews_month');
 const PostImages = require('./post_images');
+const Posttags = require('./post_tags');
  const Posts = sequelize.define('posts', {
     id: {
       autoIncrement: true,
@@ -195,6 +196,14 @@ const PostImages = require('./post_images');
       allowNull: true,
       defaultValue: 0
     },
+    twitter_link:{
+      type:DataTypes.TEXT,
+      allowNull:true,
+    },
+    short_description:{
+      type:DataTypes.TEXT,
+      allowNull:true,
+    },
     createdAt: {
       field: 'created_at',
       type: DataTypes.DATE,
@@ -299,6 +308,8 @@ const PostImages = require('./post_images');
 Posts.hasMany(PostFiles,{foreignKey:'post_id'});
 Posts.hasMany(PostPageViewMonth,{foreignKey:'post_id'});
 Posts.hasMany(PostImages,{foreignKey:'post_id'});
+Posts.hasMany(Posttags,{foreignKey:'postId'});
+Posttags.belongsTo(Posts,{foreignKey:'postId'});
 Posts.belongsTo(users,{foreignKey:'user_id'});
 
 

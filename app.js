@@ -15,6 +15,7 @@ var category = require('./routes/category');
 var posts = require('./routes/posts');
 var index = require('./routes/first');
 var pages = require('./routes/pages')
+var tags  = require('./routes/tags');
 
 
 
@@ -63,6 +64,7 @@ app.use('/signup',signup);
 app.use('/category',category);
 app.use('/posts',posts);
 app.use('/pages',pages);
+app.use('/tags',tags);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

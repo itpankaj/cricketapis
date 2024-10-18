@@ -1,25 +1,24 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../connection/connection');
-const Posts = require('./posts');
-
-const Tags = sequelize.define('tags', {
+const Tags = require('./tags');
+const Posttags = sequelize.define('post_tags', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    tag: {
-      type: DataTypes.STRING(255),
+    postId: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-    tag_slug: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    }
+    tagId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
   }, {
     sequelize,
-    tableName: 'tags',
+    tableName: 'post_tags',
     timestamps: false,
     indexes: [
       {
@@ -29,11 +28,19 @@ const Tags = sequelize.define('tags', {
         fields: [
           { name: "id" },
         ]
-      }
+      },
+      {
+        name: "idx_post_id",
+        using: "BTREE",
+        fields: [
+          { name: "postId" },
+        ]
+      },
     ]
   });
 
+  module.exports = Posttags;
 
-module.exports = Tags;
+  Posttags.belongsTo(Tags,{foreignKey:'tagId'});
 
 

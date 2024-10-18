@@ -6,6 +6,8 @@ const Posts = require('../models/posts');
 const PostImages = require('../models/post_images');
 const users = require('../models/users');
 const PostFiles = require('../models/post_files');
+const Posttags = require('../models/post_tags');
+const Tags = require('../models/tags');
 
 router.get('/show', async (req,res) => {
 
@@ -70,6 +72,15 @@ router.get('/posts', async (req,res) => {
                         model:Posts,
                         include:[
                             {
+                                model:Posttags,
+                                attributes:['id'],
+                                include:[
+                                    {
+                                        model:Tags
+                                    }
+                                ]
+                            },
+                            {
                                 model:PostImages
                             },
                             {
@@ -114,6 +125,15 @@ router.get('/:slug', async (req,res) => {
             {
                 model:Posts,
                 include:[
+                    {
+                        model:Posttags,
+                        attributes:['id'],
+                        include:[
+                            {
+                                model:Tags
+                            }
+                        ]
+                    },
                     {
                         model:PostImages
                     },
