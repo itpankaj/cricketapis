@@ -16,6 +16,8 @@ var posts = require('./routes/posts');
 var index = require('./routes/first');
 var pages = require('./routes/pages')
 var tags  = require('./routes/tags');
+var subscribers = require("./routes/subscribers");
+var footer = require("./routes/footer");
 
 
 
@@ -57,7 +59,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
 
-
 // app.use('/',index);
 app.use('/auth', auth);
 app.use('/signup',signup);
@@ -65,6 +66,8 @@ app.use('/category',category);
 app.use('/posts',posts);
 app.use('/pages',pages);
 app.use('/tags',tags);
+app.use("/subscribers", subscribers);
+app.use("/footer", footer);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

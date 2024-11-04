@@ -56,6 +56,11 @@ const categories = conn.define('categories', {
       type: DataTypes.BOOLEAN,
       allowNull: true,
       defaultValue: 1
+    },
+    show_on_footer:{
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     conn,

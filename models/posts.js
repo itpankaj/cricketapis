@@ -124,6 +124,11 @@ const Posttags = require('./post_tags');
       allowNull: true,
       defaultValue: 0
     },
+    is_footer:{
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 0
+    },
     visibility: {
       type: DataTypes.BOOLEAN,
       allowNull: true,

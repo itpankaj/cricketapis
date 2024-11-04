@@ -29,6 +29,10 @@ router.get('/show', async (req,res) => {
 
 router.get('/posts', async (req,res) => {
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10; // Number of items to fetch per page
+    const offset = (page - 1) * limit;
+
     const data = await categories.findAll({
         where:{
             parent_id:0,
@@ -59,7 +63,8 @@ router.get('/posts', async (req,res) => {
                         model:PostFiles
                     }
                 ],
-                limit:5
+                limit:limit,
+                offset:offset
             },
             {
                 model:categories,
@@ -101,7 +106,8 @@ router.get('/posts', async (req,res) => {
                                 model:PostFiles
                             }
                         ],
-                        limit:5
+                        limit:limit,
+                        offset:offset
                     }
                 ]
             }
