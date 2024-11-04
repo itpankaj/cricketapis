@@ -29,10 +29,6 @@ router.get('/show', async (req,res) => {
 
 router.get('/posts', async (req,res) => {
 
-    const page = parseInt(req.query.page) || 1;
-    const limit = 5; // Number of items to fetch per page
-    const offset = (page - 1) * limit;
-
     const data = await categories.findAll({
         where:{
             parent_id:0,
@@ -63,8 +59,8 @@ router.get('/posts', async (req,res) => {
                         model:PostFiles
                     }
                 ],
-                limit:limit,
-                offset:offset
+                limit:5,
+               
             },
             {
                 model:categories,
@@ -106,8 +102,7 @@ router.get('/posts', async (req,res) => {
                                 model:PostFiles
                             }
                         ],
-                        limit:limit,
-                        offset:offset
+                        limit:5
                     }
                 ]
             }
@@ -122,6 +117,12 @@ router.get('/posts', async (req,res) => {
 router.get('/:slug', async (req,res) => {
 
     const slug = req.params.slug;
+
+    const page = parseInt(req.query.page) || 1;
+
+    const limit = 5; // Number of items to fetch per page
+    
+    const offset = (page - 1) * limit;
 
     const data = await categories.findOne({
         where:{
@@ -160,7 +161,9 @@ router.get('/:slug', async (req,res) => {
                     {
                         model:PostFiles
                     }
-                ]
+                ],
+                limit:limit,
+                offset:offset
             }
         ]
     });
