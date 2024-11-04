@@ -128,6 +128,7 @@ router.get('/:slug', async (req,res) => {
         where:{
             name_slug:slug
         },
+        subQuery:false,
         include:[
             {
                 model:Posts,
