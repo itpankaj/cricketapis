@@ -10,7 +10,7 @@ router.post("", async (req, res) => {
         return res.status(201).json(newSubscriber);
     } catch (error) {
         console.error("Error creating subscriber:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: error.message });
     }
 });
 
