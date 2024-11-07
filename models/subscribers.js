@@ -19,11 +19,11 @@ const Subscribers = conn.define(
       allowNull: true,
     },
     createdAt: {
-      field: 'created_at',
+      field: 'createdAt',
       type: DataTypes.DATE,
   },
   updatedAt: {
-      field: 'updated_at',
+      field: 'updatedAt',
       type: DataTypes.DATE,
   },
   },
