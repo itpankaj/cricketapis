@@ -45,6 +45,8 @@ router.get('/post/:slug', async (req,res) => {
             where:{
                 tagId:tags.id
             },
+            limit:limit,
+            offset:offset,
             include:[
                 {
                     model:Posts,
@@ -80,9 +82,8 @@ router.get('/post/:slug', async (req,res) => {
                         {
                             model:PostFiles
                         }
-                    ],
-                    limit:limit,
-                    offset:offset
+                    ]
+                   
                 }
             ]
 
