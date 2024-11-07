@@ -17,18 +17,11 @@ const Subscribers = conn.define(
     token: {
       type: DataTypes.STRING(255),
       allowNull: true,
-    },
-    createdAt: {
-      field: 'createdAt',
-      type: DataTypes.DATE,
-  },
-  updatedAt: {
-      field: 'updatedAt',
-      type: DataTypes.DATE,
-  },
+    }
   },
   {
     tableName: "subscribers",
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
