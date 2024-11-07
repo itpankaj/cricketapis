@@ -8,6 +8,7 @@ const users = require('../models/users');
 const PostFiles = require('../models/post_files');
 const Posttags = require('../models/post_tags');
 const Tags = require('../models/tags');
+const PostCategories = require('../models/post_category');
 
 router.get('/show', async (req,res) => {
 
@@ -35,16 +36,10 @@ router.get('/posts', async (req,res) => {
             show_at_homepage:1
         },
         include:[
+
             {
-                model:Posts,
+                model:PostCategories,
                 include:[
-                    {
-                        model:PostImages
-                    },
-                    {
-                        model:users,
-                        attributes:['id','username','email']
-                    },
                     {
                         model:categories, attributes:['id','name','name_slug'],
                         include:[
@@ -56,12 +51,26 @@ router.get('/posts', async (req,res) => {
                         ]
                     },
                     {
-                        model:PostFiles
-                    }
+                        model:Posts,
+                        include:[
+                            {
+                                model:PostImages
+                            },
+                            {
+                                model:users,
+                                attributes:['id','username','email']
+                            },
+                            {
+                                model:PostFiles
+                            }
+                        ],
+                        // limit:5,
+                       
+                    },
                 ],
-                limit:5,
-               
+                limit:5
             },
+            
             {
                 model:categories,
                 as:'SubCategories',
@@ -70,24 +79,8 @@ router.get('/posts', async (req,res) => {
                 },
                 include:[
                     {
-                        model:Posts,
+                        model:PostCategories,
                         include:[
-                            {
-                                model:Posttags,
-                                attributes:['id'],
-                                include:[
-                                    {
-                                        model:Tags
-                                    }
-                                ]
-                            },
-                            {
-                                model:PostImages
-                            },
-                            {
-                                model:users,
-                                attributes:['id','username','email']
-                            },
                             {
                                 model:categories, attributes:['id','name','name_slug'],
                                 include:[
@@ -99,12 +92,35 @@ router.get('/posts', async (req,res) => {
                                 ]
                             },
                             {
-                                model:PostFiles
+                                model:Posts,
+                                include:[
+                                    {
+                                        model:Posttags,
+                                        attributes:['id'],
+                                        include:[
+                                            {
+                                                model:Tags
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        model:PostImages
+                                    },
+                                    {
+                                        model:users,
+                                        attributes:['id','username','email']
+                                    },
+                                    {
+                                        model:PostFiles
+                                    }
+                                ],
+                                // limit:5
                             }
-                        ],
-                        limit:5
+                        ]
                     }
-                ]
+                   
+                ],
+                limit:5
             }
         ]
     });
@@ -130,24 +146,10 @@ router.get('/:slug', async (req,res) => {
         },
         include:[
             {
-                model:Posts,
+                model:PostCategories,
+                limit:limit,
+                offset:offset,
                 include:[
-                    {
-                        model:Posttags,
-                        attributes:['id'],
-                        include:[
-                            {
-                                model:Tags
-                            }
-                        ]
-                    },
-                    {
-                        model:PostImages
-                    },
-                    {
-                        model:users,
-                        attributes:['id','username','email']
-                    },
                     {
                         model:categories, attributes:['id','name','name_slug'],
                         include:[
@@ -159,12 +161,32 @@ router.get('/:slug', async (req,res) => {
                         ]
                     },
                     {
-                        model:PostFiles
+                        model:Posts,
+                        include:[
+                            {
+                                model:Posttags,
+                                attributes:['id'],
+                                include:[
+                                    {
+                                        model:Tags
+                                    }
+                                ]
+                            },
+                            {
+                                model:PostImages
+                            },
+                            {
+                                model:users,
+                                attributes:['id','username','email']
+                            },
+                            {
+                                model:PostFiles
+                            }
+                        ]
                     }
-                ],
-                limit:limit,
-                offset:offset
+                ]
             }
+            
         ]
     });
 

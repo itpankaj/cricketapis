@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const conn = require('../connection/connection');
 const Posts = require('./posts');
+const PostCategories = require('./post_category');
 const categories = conn.define('categories', {
     id: {
       autoIncrement: true,
@@ -79,8 +80,15 @@ const categories = conn.define('categories', {
   });
 
 categories.hasMany(categories,{foreignKey:'parent_id',as:'SubCategories'});
-categories.hasMany(Posts,{foreignKey:'category_id'});
-Posts.belongsTo(categories,{foreignKey:'category_id'});
+
+categories.hasMany(PostCategories,{foreignKey:'catId'});
+
+PostCategories.belongsTo(categories,{foreignKey:'catId'});
+
+PostCategories.belongsTo(Posts,{foreignKey:'postId'});
+
+// Posts.belongsTo(PostCategories,{foreignKey:'catId'});
+
 
   module.exports = categories;
 

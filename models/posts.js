@@ -5,6 +5,7 @@ const users = require('./users');
 const PostPageViewMonth = require('./post_pageviews_month');
 const PostImages = require('./post_images');
 const Posttags = require('./post_tags');
+const PostCategories = require('./post_category');
  const Posts = sequelize.define('posts', {
     id: {
       autoIncrement: true,
@@ -316,6 +317,7 @@ Posts.hasMany(PostImages,{foreignKey:'post_id'});
 Posts.hasMany(Posttags,{foreignKey:'postId'});
 Posttags.belongsTo(Posts,{foreignKey:'postId'});
 Posts.belongsTo(users,{foreignKey:'user_id'});
+Posts.hasMany(PostCategories,{foreignKey:'postId'});
 
 
 module.exports = Posts;
