@@ -21,7 +21,7 @@ router.get('/post/:slug', async (req,res) => {
 
         const page = parseInt(req.query.page) || 1;
 
-        const limit = 5; // Number of items to fetch per page
+        const limit = 10; // Number of items to fetch per page
         
         const offset = (page - 1) * limit;
     
