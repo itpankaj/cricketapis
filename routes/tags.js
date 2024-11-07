@@ -19,6 +19,13 @@ router.get('/post/:slug', async (req,res) => {
 
         const slug = req.params.slug;
 
+        const page = parseInt(req.query.page) || 1;
+
+        const limit = 5; // Number of items to fetch per page
+        
+        const offset = (page - 1) * limit;
+    
+
         const tags = await Tags.findOne({where:{
             tag_slug:slug
         }});
@@ -73,7 +80,9 @@ router.get('/post/:slug', async (req,res) => {
                         {
                             model:PostFiles
                         }
-                    ]
+                    ],
+                    limit:limit,
+                    offset:offset
                 }
             ]
 
