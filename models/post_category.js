@@ -55,7 +55,7 @@ const categories = require('./categories');
     ]
   });
 
-  // PostCategories.belongsTo(Posts,{foreignKey:'postId'});
+  // 
   
   
   module.exports = PostCategories;
