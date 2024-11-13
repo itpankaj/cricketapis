@@ -31,15 +31,23 @@ router.get('/show', async (req,res) => {
 
 router.get('/posts', async (req,res) => {
 
+    const page = parseInt(req.query.page) || 1;
+
+    const limit = 10; // Number of items to fetch per page
+    
+    const offset = (page - 1) * limit;
+
     const data = await categories.findAll({
         where:{
             parent_id:0,
-            show_at_homepage:1
+            // show_at_homepage:1
         },
         include:[
-
             {
                 model:PostCategories,
+                limit:limit,
+                offset:offset,
+                subQuery:true,
                 include:[
                     {
                         model:categories, attributes:['id','name','name_slug'],
@@ -69,18 +77,27 @@ router.get('/posts', async (req,res) => {
                        
                     },
                 ],
-                limit:10
+                order:[
+                    [
+                        'id',
+                        'DESC'
+                    ]
+                ]
+                
             },
             
             {
                 model:categories,
                 as:'SubCategories',
                 where:{
-                    show_at_homepage:1 
+                    // show_at_homepage:1 
                 },
                 include:[
                     {
                         model:PostCategories,
+                        limit:limit,
+                        offset:offset,
+                        subQuery:true,
                         include:[
                             {
                                 model:categories, attributes:['id','name','name_slug'],
@@ -117,11 +134,16 @@ router.get('/posts', async (req,res) => {
                                 ],
                                 // limit:5
                             }
+                        ],
+                        order:[
+                            [
+                                'id',
+                                'DESC'
+                            ]
                         ]
                     }
                    
-                ],
-                limit:10
+                ]
             }
         ]
     });
