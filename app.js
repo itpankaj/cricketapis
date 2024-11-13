@@ -18,8 +18,7 @@ var pages = require('./routes/pages')
 var tags  = require('./routes/tags');
 var subscribers = require("./routes/subscribers");
 var footer = require("./routes/footer");
-
-
+var menuRoute = require('./routes/menu');
 
 
 require('./passport');
@@ -68,6 +67,7 @@ app.use('/pages',pages);
 app.use('/tags',tags);
 app.use("/subscribers", subscribers);
 app.use("/footer", footer);
+app.use('/menu',menuRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
