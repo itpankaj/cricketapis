@@ -23,7 +23,7 @@ router.get('/all', async (req,res) => {
     
         const offset = (req.query.page == 1) ? 0 : (req.query.page-1) * 5;
     
-        const limit = 5;
+        const limit = 10;
     
         if(search) {
             
