@@ -84,8 +84,9 @@ categories.hasMany(categories,{foreignKey:'parent_id',as:'SubCategories'});
 categories.hasMany(PostCategories,{foreignKey:'catId'});
 
 PostCategories.belongsTo(categories,{foreignKey:'catId'});
-
+  
 PostCategories.belongsTo(Posts,{foreignKey:'postId'});
+
 
 // Posts.belongsTo(PostCategories,{foreignKey:'catId'});
 

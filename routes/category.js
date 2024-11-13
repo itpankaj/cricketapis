@@ -141,16 +141,17 @@ router.get('/:slug', async (req,res) => {
     
     const offset = (page - 1) * limit;
 
-    const data = await categories.findOne({
+    const data = await categories.findAll({
         where:{
             name_slug:slug
         },
+       
         include:[
             {
                 model:PostCategories,
-                subQuery:false,
-                limit:limit,
                 offset:offset,
+                limit:limit,
+                subQuery:true,
                 include:[
                     {
                         model:categories, attributes:['id','name','name_slug'],
@@ -186,6 +187,13 @@ router.get('/:slug', async (req,res) => {
                             }
                         ]
                     }
+                ],
+                order:[
+                    [
+                        'id',
+                        'DESC'
+                    ]
+                   
                 ]
             }
             
