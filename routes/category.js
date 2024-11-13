@@ -163,7 +163,7 @@ router.get('/:slug', async (req,res) => {
     
     const offset = (page - 1) * limit;
 
-    const data = await categories.findOne({
+    const data = await categories.findAll({
         where:{
             name_slug:slug
         },
