@@ -148,6 +148,7 @@ router.get('/:slug', async (req,res) => {
         include:[
             {
                 model:PostCategories,
+                subQuery:false,
                 limit:limit,
                 offset:offset,
                 include:[
