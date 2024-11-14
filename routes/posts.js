@@ -13,118 +13,119 @@ const Posttags = require('../models/post_tags');
 const Tags = require('../models/tags');
 const PostCategories = require('../models/post_category');
 
-router.get('/all', async (req,res) => {
+router.get('/all', async (req, res) => {
 
-    try{
+    try {
 
         const search = req.query.search;
 
         var whereCondition = {};
-    
-        const offset = (req.query.page == 1) ? 0 : (req.query.page-1) * 5;
-    
+
+        const offset = (req.query.page == 1) ? 0 : (req.query.page - 1) * 5;
+
         const limit = 10;
-    
-        if(search) {
-            
+
+        if (search) {
+
             const searchKewords = search.split(' ');
-    
+
             const searchArr = [];
-    
-            for(itemSerch of searchKewords) {
-    
+
+            for (itemSerch of searchKewords) {
+
                 const item = {
                     title: {
-                        [Op.like]: '%'+itemSerch+'%'
+                        [Op.like]: '%' + itemSerch + '%'
                     }
                 }
-    
+
                 searchArr.push(item)
-    
-            } 
-    
+
+            }
+
             whereCondition = {
                 [Op.and]: searchArr
             }
-    
+
         }
-    
+
         const data = await Posts.findAll({
-    
-            where:whereCondition,
-    
-            limit:limit,
-    
-            offset:offset
-            
-          }
+
+            where: whereCondition,
+
+            limit: limit,
+
+            offset: offset
+
+        }
         );
-    
+
         const totalPosts = await Posts.count();
-    
-        return res.status(200).json({data:data,total:totalPosts});
+
+        return res.status(200).json({ data: data, total: totalPosts });
 
 
-    }catch(err) {
-        return res.json({'error':err.message});
+    } catch (err) {
+        return res.json({ 'error': err.message });
     }
 
-   
+
 
 });
 
 
-router.get('/homepage/slider-image', async (req,res) => {
+router.get('/homepage/slider-image', async (req, res) => {
 
     const data = await Posts.findAll({
-        where:{
-            is_slider:1
+        where: {
+            is_slider: 1
         },
-        include:[
+        include: [
             {
-                model:Posttags,
-                attributes:['id'],
-                include:[
+                model: Posttags,
+                attributes: ['id'],
+                include: [
                     {
-                        model:Tags
+                        model: Tags
                     }
                 ]
             },
             {
-                model:PostImages
+                model: PostImages
             },
             {
-                model:users,
-                attributes:['id','username','email']
+                model: users,
+                attributes: ['id', 'username', 'email']
             },
             {
-                model:PostCategories,
-                include:[
+                model: PostCategories,
+                include: [
                     {
-                        model:categories,
-                        attributes:['id','name','name_slug'],
-                        include:[
+                        model: categories,
+                        attributes: ['id', 'name', 'name_slug'],
+                        include: [
                             {
-                                model:categories,
-                                as:'SubCategories',
-                                attributes:['id','name','name_slug']
+                                model: categories,
+                                as: 'SubCategories',
+                                attributes: ['id', 'name', 'name_slug']
                             }
                         ]
                     },
                 ]
             },
-            
+
             {
-                model:PostFiles
+                model: PostFiles
             }
         ],
-        order:[
+        order: [
             [
                 'slider_order',
                 'ASC'
             ]
         ],
-        limit:10});
+        limit: 10
+    });
 
     return res.status(200).json(data);
 
@@ -132,129 +133,136 @@ router.get('/homepage/slider-image', async (req,res) => {
 
 
 
-router.get('/homepage/recommended/:slug', async (req,res) => {
+router.get('/homepage/recommended/:slug', async (req, res) => {
 
     const slug = req.params.slug;
 
+
     let data = [];
 
-    const categoryId = await categories.findOne({where:{
-        name_slug:slug
-    }})
+    const categoryId = await categories.findOne({
+        where: {
+            name_slug: slug
+        }
+    })
 
-    if(categoryId) {
+    if (categoryId) {
 
-
-        console.log('----->')
-
-         data = await Posts.findAll({
-            where:{
-                is_recommended:1,
-                category_id:categoryId.id
+        data = await PostCategories.findAll({
+            where: {
+                catId: categoryId.id
             },
-            include:[
+            limit: 10,
+            subQuery: true,
+            include: [
                 {
-                    model:Posttags,
-                    attributes:['id'],
-                    include:[
+                    model: categories, attributes: ['id', 'name', 'name_slug'],
+                    include: [
                         {
-                            model:Tags
+                            model: categories,
+                            as: 'SubCategories',
+                            attributes: ['id', 'name', 'name_slug']
                         }
                     ]
                 },
                 {
-                    model:PostImages
-                },
-                {
-                    model:users,
-                    attributes:['id','username','email']
-                },
-                {
-                    model:PostCategories,
-                    include:[
+                    model: Posts,
+                    where:{
+                        is_recommended:1
+                    },
+                    include: [
                         {
-                            model:categories,
-                            attributes:['id','name','name_slug'],
-                            include:[
+                            model: Posttags,
+                            attributes: ['id'],
+                            include: [
                                 {
-                                    model:categories,
-                                    as:'SubCategories',
-                                    attributes:['id','name','name_slug']
+                                    model: Tags
                                 }
                             ]
                         },
-                    ]
+                        {
+                            model: PostImages
+                        },
+                        {
+                            model: users,
+                            attributes: ['id', 'username', 'email']
+                        },
+                        {
+                            model: PostFiles
+                        }
+                    ],
+                    // limit:5,
+
                 },
-                {
-                    model:PostFiles
-                }
             ],
-            order:[
+            order: [
                 [
                     'id',
                     'DESC'
                 ]
-            ],
-            limit:10});
+            ]
+        })
+
     }
 
-   
+
 
     return res.status(200).json(data);
 
 });
 
 
-router.get('/homepage/featured', async (req,res) => {
+router.get('/homepage/featured', async (req, res) => {
 
     const data = await Posts.findAll({
-        where:{
-            is_featured:1
+        where: {
+            is_featured: 1
         },
-        include:[
+        include: [
             {
-                model:Posttags,
-                attributes:['id'],
-                include:[
+                model: Posttags,
+                attributes: ['id'],
+                include: [
                     {
-                        model:Tags
+                        model: Tags
                     }
                 ]
             },
             {
-                model:PostImages
+                model: PostImages
             },
             {
-                model:users,
-                attributes:['id','username','email']
+                model: users,
+                attributes: ['id', 'username', 'email']
             },
             {
-                model:PostCategories,
-                include:[
+                model: PostCategories,
+                include: [
                     {
-                        model:categories,
-                        attributes:['id','name','name_slug'],
-                        include:[
+                        model: categories,
+                        attributes: ['id', 'name', 'name_slug'],
+                        include: [
                             {
-                                model:categories,
-                                as:'SubCategories',
-                                attributes:['id','name','name_slug']
+                                model: categories,
+                                as: 'SubCategories',
+                                attributes: ['id', 'name', 'name_slug']
                             }
                         ]
                     },
                 ]
             },
             {
-                model:PostFiles
+                model: PostFiles
             }
         ],
-        order:[
+        order: [
             [
                 'featured_order',
                 'ASC'
             ]
         ],
-        limit:10});
+        limit: 10
+    });
 
     return res.status(200).json(data);
 
@@ -262,7 +270,7 @@ router.get('/homepage/featured', async (req,res) => {
 
 
 
-router.get('/:slug', async (req,res) => {
+router.get('/:slug', async (req, res) => {
 
 
     try {
@@ -270,74 +278,74 @@ router.get('/:slug', async (req,res) => {
         const slug = req.params.slug;
 
         const data = await Posts.findOne({
-            where:{
-                title_slug:slug
+            where: {
+                title_slug: slug
             },
-            include:[
-               
+            include: [
+
                 {
-                    model:Posttags,
-                    attributes:['id'],
-                    include:[
+                    model: Posttags,
+                    attributes: ['id'],
+                    include: [
                         {
-                            model:Tags
+                            model: Tags
                         }
                     ]
                 },
                 {
-                    model:PostImages
+                    model: PostImages
                 },
                 {
-                    model:users,
-                    attributes:['id','username','email']
+                    model: users,
+                    attributes: ['id', 'username', 'email']
                 },
                 {
-                    model:PostCategories,
-                    include:[
+                    model: PostCategories,
+                    include: [
                         {
-                            model:categories,
-                            attributes:['id','name','name_slug'],
-                            include:[
+                            model: categories,
+                            attributes: ['id', 'name', 'name_slug'],
+                            include: [
                                 {
-                                    model:categories,
-                                    as:'SubCategories',
-                                    attributes:['id','name','name_slug']
+                                    model: categories,
+                                    as: 'SubCategories',
+                                    attributes: ['id', 'name', 'name_slug']
                                 }
                             ]
                         },
                     ]
                 },
                 {
-                    model:PostFiles
+                    model: PostFiles
                 }
             ]
         });
 
-        if(!data) {
-            return res.status(404).json({message:"post not found"});
+        if (!data) {
+            return res.status(404).json({ message: "post not found" });
         }
 
         // add post view record
 
         await PostPageViewMonth.create({
-            post_id:data.id,
+            post_id: data.id,
 
         });
 
         const count = await PostPageViewMonth.count({
-           where:{
-            post_id:data.id
-           }
+            where: {
+                post_id: data.id
+            }
         });
-    
-        return res.status(200).json({data:data,count:count});
-        
+
+        return res.status(200).json({ data: data, count: count });
+
     } catch (error) {
 
-        return res.json({'message':error.message})
+        return res.json({ 'message': error.message })
     }
-    
-  
+
+
 
 });
 
