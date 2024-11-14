@@ -11,6 +11,14 @@ module.exports = conn.define('users', {
       type: DataTypes.STRING(255),
       allowNull: true
     },
+    first_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    last_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
     slug: {
       type: DataTypes.STRING(255),
       allowNull: true
