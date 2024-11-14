@@ -95,7 +95,7 @@ router.get('/homepage/slider-image', async (req, res) => {
             },
             {
                 model: users,
-                attributes: ['id', 'username', 'email']
+                attributes: ['id', 'username', 'email','first_name','last_name']
             },
             {
                 model: PostCategories,
@@ -136,7 +136,6 @@ router.get('/homepage/slider-image', async (req, res) => {
 router.get('/homepage/recommended/:slug', async (req, res) => {
 
     const slug = req.params.slug;
-
 
     let data = [];
 
@@ -185,7 +184,7 @@ router.get('/homepage/recommended/:slug', async (req, res) => {
                         },
                         {
                             model: users,
-                            attributes: ['id', 'username', 'email']
+                            attributes: ['id', 'username', 'email','first_name','last_name']
                         },
                         {
                             model: PostFiles
@@ -204,7 +203,6 @@ router.get('/homepage/recommended/:slug', async (req, res) => {
         })
 
     }
-
 
 
     return res.status(200).json(data);
@@ -233,7 +231,7 @@ router.get('/homepage/featured', async (req, res) => {
             },
             {
                 model: users,
-                attributes: ['id', 'username', 'email']
+                attributes: ['id', 'username', 'email','first_name','last_name']
             },
             {
                 model: PostCategories,
@@ -297,7 +295,7 @@ router.get('/:slug', async (req, res) => {
                 },
                 {
                     model: users,
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email','first_name','last_name']
                 },
                 {
                     model: PostCategories,
