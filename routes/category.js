@@ -202,7 +202,7 @@ router.get('/:slug', async (req,res) => {
                             },
                             {
                                 model:users,
-                                attributes:['id','username','email']
+                                attributes:['id','username','email','first_name','last_name','slug','avatar']
                             },
                             {
                                 model:PostFiles

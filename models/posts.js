@@ -317,6 +317,7 @@ Posts.hasMany(PostImages,{foreignKey:'post_id'});
 Posts.hasMany(Posttags,{foreignKey:'postId'});
 Posttags.belongsTo(Posts,{foreignKey:'postId'});
 Posts.belongsTo(users,{foreignKey:'user_id'});
+users.hasMany(Posts,{foreignKey:'user_id'});
 Posts.hasMany(PostCategories,{foreignKey:'postId'});
 
 
