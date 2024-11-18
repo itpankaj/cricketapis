@@ -15,7 +15,7 @@ router.get("", async (req, res) => {
     // Fetch posts where `is_footer` is 1
     const footerPosts = await posts.findAll({
       where: { is_footer: 1 },
-      attributes: ["id", "title"], // Adjust attributes based on your posts model
+      attributes: ["id", "title",'title_slug'], // Adjust attributes based on your posts model
     });
 
     // Combine both results into a single response
