@@ -95,7 +95,7 @@ router.get('/homepage/slider-image', async (req, res) => {
             },
             {
                 model: users,
-                attributes: ['id', 'username', 'email','first_name','last_name']
+                attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
             },
             {
                 model: PostCategories,
@@ -184,7 +184,7 @@ router.get('/homepage/recommended/:slug', async (req, res) => {
                         },
                         {
                             model: users,
-                            attributes: ['id', 'username', 'email','first_name','last_name']
+                            attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
                         },
                         {
                             model: PostFiles
@@ -231,7 +231,7 @@ router.get('/homepage/featured', async (req, res) => {
             },
             {
                 model: users,
-                attributes: ['id', 'username', 'email','first_name','last_name']
+                attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
             },
             {
                 model: PostCategories,
@@ -295,7 +295,7 @@ router.get('/:slug', async (req, res) => {
                 },
                 {
                     model: users,
-                    attributes: ['id', 'username', 'email','first_name','last_name']
+                    attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
                 },
                 {
                     model: PostCategories,

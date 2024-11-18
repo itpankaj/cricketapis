@@ -19,6 +19,7 @@ var tags  = require('./routes/tags');
 var subscribers = require("./routes/subscribers");
 var footer = require("./routes/footer");
 var menuRoute = require('./routes/menu');
+var author = require('./routes/author');
 
 
 require('./passport');
@@ -68,6 +69,7 @@ app.use('/tags',tags);
 app.use("/subscribers", subscribers);
 app.use("/footer", footer);
 app.use('/menu',menuRoute);
+app.use('/author',author);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
