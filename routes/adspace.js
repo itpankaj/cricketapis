@@ -19,3 +19,5 @@ router.get('/:slug', async (req, res) => {
     return res.status(200).json(data);
 
 });
+
+module.exports = router;
