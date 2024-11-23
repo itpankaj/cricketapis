@@ -20,6 +20,7 @@ var subscribers = require("./routes/subscribers");
 var footer = require("./routes/footer");
 var menuRoute = require('./routes/menu');
 var author = require('./routes/author');
+var adspace = require('./routes/adspace');
 
 
 require('./passport');
@@ -70,6 +71,7 @@ app.use("/subscribers", subscribers);
 app.use("/footer", footer);
 app.use('/menu',menuRoute);
 app.use('/author',author);
+app.use('/ad-space',adspace);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

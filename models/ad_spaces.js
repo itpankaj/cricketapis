@@ -1,6 +1,7 @@
-const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('ad_spaces', {
+const { DataTypes } = require('sequelize');
+const sequelize = require('../connection/connection');
+
+ const AdSpace = sequelize.define('ad_spaces', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -63,4 +64,5 @@ module.exports = function(sequelize, DataTypes) {
       },
     ]
   });
-};
+
+  module.exports = AdSpace;
