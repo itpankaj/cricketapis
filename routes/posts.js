@@ -50,6 +50,12 @@ router.get('/all', async (req, res) => {
         }
 
         const data = await Posts.findAll({
+            include:[
+                {
+                    model: users,
+                    attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
+                }
+            ],
 
             where: whereCondition,
 
@@ -346,6 +352,61 @@ router.get('/:slug', async (req, res) => {
 
 
 });
+
+router.get('/latest', async (req, res) => {
+
+    const data = await Posts.findAll({
+        
+        include: [
+            {
+                model: Posttags,
+                attributes: ['id'],
+                include: [
+                    {
+                        model: Tags
+                    }
+                ]
+            },
+            {
+                model: PostImages
+            },
+            {
+                model: users,
+                attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
+            },
+            {
+                model: PostCategories,
+                include: [
+                    {
+                        model: categories,
+                        attributes: ['id', 'name', 'name_slug'],
+                        include: [
+                            {
+                                model: categories,
+                                as: 'SubCategories',
+                                attributes: ['id', 'name', 'name_slug']
+                            }
+                        ]
+                    },
+                ]
+            },
+            {
+                model: PostFiles
+            }
+        ],
+        order: [
+            [
+                'id',
+                'DESC'
+            ]
+        ],
+        limit: 10
+    });
+
+    return res.status(200).json(data);
+
+});
+
 
 
 module.exports = router;

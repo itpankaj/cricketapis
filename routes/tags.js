@@ -68,7 +68,7 @@ router.get('/post/:slug', async (req,res) => {
                         },
                         {
                             model:users,
-                            attributes:['id','username','email','first_name','last_name']
+                            attributes:['id','username','email','first_name','last_name','slug','avatar']
                         },
                         {
                             model:PostCategories,
