@@ -353,7 +353,7 @@ router.get('/:slug', async (req, res) => {
 
 });
 
-router.get('/latest', async (req, res) => {
+router.get('/latest/news', async (req, res) => {
 
     const data = await Posts.findAll({
         
@@ -406,7 +406,6 @@ router.get('/latest', async (req, res) => {
     return res.status(200).json(data);
 
 });
-
 
 
 module.exports = router;
