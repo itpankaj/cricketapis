@@ -19,7 +19,7 @@ router.get('/all', async (req, res) => {
 
         const search = req.query.search;
 
-        var whereCondition = {};
+        var whereCondition = {status:1};
 
         const offset = (req.query.page == 1) ? 0 : (req.query.page - 1) * 5;
 
@@ -44,7 +44,8 @@ router.get('/all', async (req, res) => {
             }
 
             whereCondition = {
-                [Op.and]: searchArr
+                [Op.and]: searchArr,
+                status:1
             }
 
         }
@@ -84,7 +85,8 @@ router.get('/homepage/slider-image', async (req, res) => {
 
     const data = await Posts.findAll({
         where: {
-            is_slider: 1
+            is_slider: 1,
+            status:1
         },
         include: [
             {
@@ -173,7 +175,8 @@ router.get('/homepage/recommended/:slug', async (req, res) => {
                 {
                     model: Posts,
                     where:{
-                        is_recommended:1
+                        is_recommended:1,
+                        status:1
                     },
                     include: [
                         {
@@ -220,7 +223,8 @@ router.get('/homepage/featured', async (req, res) => {
 
     const data = await Posts.findAll({
         where: {
-            is_featured: 1
+            is_featured: 1,
+            status:1
         },
         include: [
             {
@@ -283,7 +287,8 @@ router.get('/:slug', async (req, res) => {
 
         const data = await Posts.findOne({
             where: {
-                title_slug: slug
+                title_slug: slug,
+                status:1
             },
             include: [
 
@@ -356,6 +361,9 @@ router.get('/:slug', async (req, res) => {
 router.get('/latest/news', async (req, res) => {
 
     const data = await Posts.findAll({
+        where:{
+            status:1
+        },
         
         include: [
             {

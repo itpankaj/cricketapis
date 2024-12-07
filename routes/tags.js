@@ -51,6 +51,9 @@ router.get('/post/:slug', async (req,res) => {
             include:[
                 {
                     model:Posts,
+                    where:{
+                        status:1
+                    },
                     include:[
 
                         {

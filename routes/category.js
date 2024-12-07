@@ -61,6 +61,9 @@ router.get('/posts', async (req,res) => {
                     },
                     {
                         model:Posts,
+                        where:{
+                            status:1
+                        },
                         include:[
                             {
                                 model:PostImages
@@ -111,6 +114,9 @@ router.get('/posts', async (req,res) => {
                             },
                             {
                                 model:Posts,
+                                where:{
+                                    status:1
+                                },
                                 include:[
                                     {
                                         model:Posttags,
@@ -187,6 +193,9 @@ router.get('/:slug', async (req,res) => {
                     },
                     {
                         model:Posts,
+                        where:{
+                            status:1
+                        },
                         include:[
                             {
                                 model:Posttags,

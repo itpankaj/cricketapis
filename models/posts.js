@@ -192,6 +192,11 @@ const PostCategories = require('./post_category');
       type: DataTypes.STRING(500),
       allowNull: true
     },
+    image_cloud: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+
     show_item_numbers: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
