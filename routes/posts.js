@@ -285,11 +285,22 @@ router.get('/:slug', async (req, res) => {
 
         const slug = req.params.slug;
 
+        const previewItem = req.query.preview;
+
+        var whereCondition = {
+            title_slug:slug,
+            status:1
+        }
+
+        if(previewItem) {
+            
+            whereCondition = {
+                title_slug:slug
+            }
+        }
+
         const data = await Posts.findOne({
-            where: {
-                title_slug: slug,
-                status:1
-            },
+            where: whereCondition,
             include: [
 
                 {
