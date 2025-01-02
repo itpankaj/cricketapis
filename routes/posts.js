@@ -62,7 +62,14 @@ router.get('/all', async (req, res) => {
 
             limit: limit,
 
-            offset: offset
+            offset: offset,
+
+            order: [
+                [
+                    'id',
+                    'DESC'
+                ]
+            ],
 
         }
         );
@@ -419,7 +426,7 @@ router.get('/latest/news', async (req, res) => {
                 'DESC'
             ]
         ],
-        limit: 10
+        limit: 5
     });
 
     return res.status(200).json(data);
