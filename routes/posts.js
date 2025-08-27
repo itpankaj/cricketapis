@@ -426,7 +426,7 @@ router.get('/latest/news', async (req, res) => {
                 'DESC'
             ]
         ],
-        limit: 5
+        limit: 15
     });
 
     return res.status(200).json(data);
