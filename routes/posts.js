@@ -476,20 +476,19 @@ router.get('/:slug', async (req, res) => {
 
         // add post view record
 
-        // [INSERT] post_pageviews_month - Records a new pageview when user accesses a post via GET /posts/:slug
-        await PostPageViewMonth.create({
-            post_id: data.id,
+        // [DISABLED] [INSERT] post_pageviews_month - Records a new pageview when user accesses a post via GET /posts/:slug
+        // await PostPageViewMonth.create({
+        //     post_id: data.id,
+        // });
 
-        });
+        // [DISABLED] [SELECT] post_pageviews_month - Counts total pageviews for the post to return view count
+        // const count = await PostPageViewMonth.count({
+        //     where: {
+        //         post_id: data.id
+        //     }
+        // });
 
-        // [SELECT] post_pageviews_month - Counts total pageviews for the post to return view count
-        const count = await PostPageViewMonth.count({
-            where: {
-                post_id: data.id
-            }
-        });
-
-        return res.status(200).json({ data: data, count: count });
+        return res.status(200).json({ data: data, count: null });
 
     } catch (error) {
 

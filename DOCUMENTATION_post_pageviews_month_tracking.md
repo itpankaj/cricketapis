@@ -123,6 +123,20 @@ Posts.hasMany(PostPageViewMonth, { foreignKey: 'post_id' });
 - Added `[SELECT]` comment marker to line 485 in `routes/posts.js`
 - These comments help developers quickly identify database operations when reviewing code
 
+### Disabling Pageview Tracking (Nov 15, 2025 - 8:08 PM)
+- **DISABLED** INSERT operation on line 480 in `routes/posts.js`
+  - Commented out: `await PostPageViewMonth.create({ post_id: data.id })`
+  - Reason: Stop recording pageviews to reduce database load
+  
+- **DISABLED** SELECT operation on line 485 in `routes/posts.js`
+  - Commented out: `const count = await PostPageViewMonth.count({ where: { post_id: data.id } })`
+  - Reason: Stop counting pageviews
+  
+- **Updated Response**: Changed `count: count` to `count: null` in response (line 491)
+  - API will now return `null` instead of pageview count
+
+**Status**: ✅ Pageview tracking is now DISABLED - no new records will be inserted into `post_pageviews_month` table
+
 ---
 
 ## Future Optimization Opportunities
