@@ -283,8 +283,130 @@ router.get('/homepage/featured', async (req, res) => {
 
 });
 
+// NEW: Dedicated endpoint for Next.js static generation
+// Returns only slugs for recent articles (default 500)
+// IMPORTANT: Must be BEFORE /:slug route to avoid being caught by it
+router.get('/recent-slugs', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 500;
+        const finalLimit = Math.min(limit, 2000); // Cap at 2000
 
+        const data = await Posts.findAll({
+            attributes: ['title_slug'], // Only slug, nothing else
+            where: {
+                status: 1
+            },
+            order: [
+                ['createdAt', 'DESC'] // Newest first
+            ],
+            limit: finalLimit,
+            raw: true
+        });
 
+        // Return array of slugs
+        const slugs = data.map(post => post.title_slug);
+
+        return res.status(200).json(slugs);
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+});
+
+// Optimized endpoint for static generation - returns only slugs
+// IMPORTANT: Must be BEFORE /:slug route to avoid being caught by it
+router.get('/all-slugs', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 1000;
+        const finalLimit = Math.min(limit, 5000);
+
+        const data = await Posts.findAll({
+            attributes: ['title_slug', 'createdAt'], // Only fetch what we need
+            where: {
+                status: 1
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            limit: finalLimit,
+            raw: true // Return plain objects for better performance
+        });
+
+        // Extract just the slugs
+        const slugs = data.map(post => post.title_slug);
+
+        return res.status(200).json(slugs);
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/latest/news', async (req, res) => {
+
+    // Get limit from query parameter, default to 15 for backward compatibility
+    const limit = parseInt(req.query.limit) || 15;
+    
+    // Cap at 5000 to prevent memory issues
+    const finalLimit = Math.min(limit, 5000);
+
+    const data = await Posts.findAll({
+        where:{
+            status:1
+        },
+        
+        include: [
+            {
+                model: Posttags,
+                attributes: ['id'],
+                include: [
+                    {
+                        model: Tags
+                    }
+                ]
+            },
+            {
+                model: PostImages
+            },
+            {
+                model: users,
+                attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
+            },
+            {
+                model: PostCategories,
+                include: [
+                    {
+                        model: categories,
+                        attributes: ['id', 'name', 'name_slug'],
+                        include: [
+                            {
+                                model: categories,
+                                as: 'SubCategories',
+                                attributes: ['id', 'name', 'name_slug']
+                            }
+                        ]
+                    },
+                ]
+            },
+            {
+                model: PostFiles
+            }
+        ],
+        order: [
+            [
+                'createdAt',  // Sort by creation date instead of ID
+                'DESC'
+            ]
+        ],
+        limit: finalLimit
+    });
+
+    return res.status(200).json(data);
+
+});
+
+// IMPORTANT: Catch-all /:slug route MUST be LAST
+// Otherwise it catches all other routes like /recent-slugs, /all-slugs, etc.
 router.get('/:slug', async (req, res) => {
 
 
@@ -354,11 +476,13 @@ router.get('/:slug', async (req, res) => {
 
         // add post view record
 
+        // [INSERT] post_pageviews_month - Records a new pageview when user accesses a post via GET /posts/:slug
         await PostPageViewMonth.create({
             post_id: data.id,
 
         });
 
+        // [SELECT] post_pageviews_month - Counts total pageviews for the post to return view count
         const count = await PostPageViewMonth.count({
             where: {
                 post_id: data.id
@@ -375,63 +499,5 @@ router.get('/:slug', async (req, res) => {
 
 
 });
-
-router.get('/latest/news', async (req, res) => {
-
-    const data = await Posts.findAll({
-        where:{
-            status:1
-        },
-        
-        include: [
-            {
-                model: Posttags,
-                attributes: ['id'],
-                include: [
-                    {
-                        model: Tags
-                    }
-                ]
-            },
-            {
-                model: PostImages
-            },
-            {
-                model: users,
-                attributes: ['id', 'username', 'email','first_name','last_name','slug','avatar']
-            },
-            {
-                model: PostCategories,
-                include: [
-                    {
-                        model: categories,
-                        attributes: ['id', 'name', 'name_slug'],
-                        include: [
-                            {
-                                model: categories,
-                                as: 'SubCategories',
-                                attributes: ['id', 'name', 'name_slug']
-                            }
-                        ]
-                    },
-                ]
-            },
-            {
-                model: PostFiles
-            }
-        ],
-        order: [
-            [
-                'id',
-                'DESC'
-            ]
-        ],
-        limit: 15
-    });
-
-    return res.status(200).json(data);
-
-});
-
 
 module.exports = router;
