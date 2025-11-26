@@ -130,6 +130,11 @@ const PostCategories = require('./post_category');
       allowNull: true,
       defaultValue: 0
     },
+    is_evergreen:{
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: 0
+    },
     visibility: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
