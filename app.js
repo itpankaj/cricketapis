@@ -21,6 +21,7 @@ var footer = require("./routes/footer");
 var menuRoute = require('./routes/menu');
 var author = require('./routes/author');
 var adspace = require('./routes/adspace');
+var cricket = require('./routes/cricket');
 
 
 require('./passport');
@@ -72,6 +73,7 @@ app.use("/footer", footer);
 app.use('/menu',menuRoute);
 app.use('/author',author);
 app.use('/ad-space',adspace);
+app.use('/cricket',cricket);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
