@@ -3,6 +3,7 @@ const router = express.Router();
 const CricketSeries = require('../models/cricket_series');
 const CricketSchedule = require('../models/cricket_schedule');
 const CricketPointsTable = require('../models/cricket_points_table');
+const CricketRankings = require('../models/cricket_rankings');
 const { Op } = require('sequelize');
 
 /**
@@ -155,34 +156,55 @@ router.get('/schedule', async (req, res) => {
 /**
  * GET /cricket/schedule/latest
  * Get latest 20 upcoming/live matches
+ * If no upcoming/live matches, returns latest matches by created_at
  */
 router.get('/schedule/latest', async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 20;
 
-        const matches = await CricketSchedule.findAll({
+        // First try to get upcoming/live matches
+        let matches = await CricketSchedule.findAll({
             where: {
                 status: { [Op.in]: ['upcoming', 'live'] }
             },
-            order: [['match_date', 'ASC']],
+            order: [
+                ['match_date', 'ASC'],
+                ['match_no', 'ASC'],
+                ['id', 'ASC']
+            ],
             limit: limit
         });
 
+        // If no upcoming/live matches, get the most recent matches
+        if (matches.length === 0) {
+            matches = await CricketSchedule.findAll({
+                order: [
+                    ['match_date', 'DESC'],
+                    ['match_no', 'DESC'],
+                    ['id', 'DESC']
+                ],
+                limit: limit
+            });
+        }
+
         // Get series names
         const seriesIds = [...new Set(matches.map(r => r.series_id))];
-        const seriesList = await CricketSeries.findAll({
-            where: { series_id: { [Op.in]: seriesIds } },
-            attributes: ['series_id', 'name', 'year', 'format']
-        });
+        let seriesMap = {};
+        
+        if (seriesIds.length > 0) {
+            const seriesList = await CricketSeries.findAll({
+                where: { series_id: { [Op.in]: seriesIds } },
+                attributes: ['series_id', 'name', 'year', 'format']
+            });
 
-        const seriesMap = {};
-        seriesList.forEach(s => {
-            seriesMap[s.series_id] = {
-                name: s.name,
-                year: s.year,
-                format: s.format
-            };
-        });
+            seriesList.forEach(s => {
+                seriesMap[s.series_id] = {
+                    name: s.name,
+                    year: s.year,
+                    format: s.format
+                };
+            });
+        }
 
         const dataWithSeries = matches.map(match => {
             const matchData = match.toJSON();
@@ -325,6 +347,137 @@ router.get('/match/:match_id', async (req, res) => {
         return res.status(200).json({
             success: true,
             data: matchData
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+// ==================== RANKINGS ENDPOINTS ====================
+
+/**
+ * GET /cricket/rankings
+ * Get all rankings with optional filters
+ * Query params: category, format, gender, limit, page
+ */
+router.get('/rankings', async (req, res) => {
+    try {
+        const { category, format, gender, limit = 50, page = 1 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const whereCondition = {};
+
+        if (category) {
+            whereCondition.category = category;
+        }
+        if (format) {
+            whereCondition.format = format;
+        }
+        if (gender) {
+            whereCondition.gender = gender;
+        }
+
+        const { count, rows } = await CricketRankings.findAndCountAll({
+            where: whereCondition,
+            order: [
+                ['category', 'ASC'],
+                ['format', 'ASC'],
+                ['position', 'ASC']
+            ],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: rows,
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(count / limit)
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * GET /cricket/rankings/:format
+ * Get rankings for a specific format (test, odi, t20)
+ * Query params: category, gender, limit
+ */
+router.get('/rankings/:format', async (req, res) => {
+    try {
+        const { format } = req.params;
+        const { category = 'batting', gender = 'men', limit = 100 } = req.query;
+
+        if (!['test', 'odi', 't20'].includes(format)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid format. Must be test, odi, or t20'
+            });
+        }
+
+        const whereCondition = {
+            format: format,
+            category: category,
+            gender: gender
+        };
+
+        const rankings = await CricketRankings.findAll({
+            where: whereCondition,
+            order: [['position', 'ASC']],
+            limit: parseInt(limit)
+        });
+
+        return res.status(200).json({
+            success: true,
+            format: format.toUpperCase(),
+            category: category,
+            gender: gender,
+            data: rankings,
+            total: rankings.length
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * GET /cricket/rankings/player/:player_name
+ * Search rankings by player name
+ */
+router.get('/rankings/player/:player_name', async (req, res) => {
+    try {
+        const { player_name } = req.params;
+
+        const rankings = await CricketRankings.findAll({
+            where: {
+                player_name: { [Op.like]: `%${player_name}%` }
+            },
+            order: [
+                ['category', 'ASC'],
+                ['format', 'ASC'],
+                ['position', 'ASC']
+            ]
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: rankings,
+            total: rankings.length
         });
 
     } catch (err) {
