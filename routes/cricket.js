@@ -4,6 +4,7 @@ const CricketSeries = require('../models/cricket_series');
 const CricketSchedule = require('../models/cricket_schedule');
 const CricketPointsTable = require('../models/cricket_points_table');
 const CricketRankings = require('../models/cricket_rankings');
+const CricketTeamsRankings = require('../models/cricket_teams_rankings');
 const { Op } = require('sequelize');
 
 /**
@@ -361,12 +362,12 @@ router.get('/match/:match_id', async (req, res) => {
 
 /**
  * GET /cricket/rankings
- * Get all rankings with optional filters
- * Query params: category, format, gender, limit, page
+ * Get all player rankings with optional filters
+ * Query params: category, format, gender, ranking_type, limit, page
  */
 router.get('/rankings', async (req, res) => {
     try {
-        const { category, format, gender, limit = 50, page = 1 } = req.query;
+        const { category, format, gender, ranking_type, limit = 50, page = 1 } = req.query;
         const offset = (page - 1) * limit;
 
         const whereCondition = {};
@@ -379,6 +380,9 @@ router.get('/rankings', async (req, res) => {
         }
         if (gender) {
             whereCondition.gender = gender;
+        }
+        if (ranking_type) {
+            whereCondition.ranking_type = ranking_type;
         }
 
         const { count, rows } = await CricketRankings.findAndCountAll({
@@ -411,13 +415,13 @@ router.get('/rankings', async (req, res) => {
 
 /**
  * GET /cricket/rankings/:format
- * Get rankings for a specific format (test, odi, t20)
- * Query params: category, gender, limit
+ * Get player rankings for a specific format (test, odi, t20)
+ * Query params: category, gender, ranking_type, limit
  */
 router.get('/rankings/:format', async (req, res) => {
     try {
         const { format } = req.params;
-        const { category = 'batting', gender = 'men', limit = 100 } = req.query;
+        const { category = 'batting', gender = 'men', ranking_type = 'icc', limit = 100 } = req.query;
 
         if (!['test', 'odi', 't20'].includes(format)) {
             return res.status(400).json({
@@ -429,7 +433,8 @@ router.get('/rankings/:format', async (req, res) => {
         const whereCondition = {
             format: format,
             category: category,
-            gender: gender
+            gender: gender,
+            ranking_type: ranking_type
         };
 
         const rankings = await CricketRankings.findAll({
@@ -443,6 +448,7 @@ router.get('/rankings/:format', async (req, res) => {
             format: format.toUpperCase(),
             category: category,
             gender: gender,
+            ranking_type: ranking_type,
             data: rankings,
             total: rankings.length
         });
@@ -469,6 +475,135 @@ router.get('/rankings/player/:player_name', async (req, res) => {
             },
             order: [
                 ['category', 'ASC'],
+                ['format', 'ASC'],
+                ['position', 'ASC']
+            ]
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: rankings,
+            total: rankings.length
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+// ==================== TEAMS RANKINGS ENDPOINTS ====================
+
+/**
+ * GET /cricket/teams-rankings
+ * Get all team rankings with optional filters
+ * Query params: format, gender, ranking_type, limit, page
+ */
+router.get('/teams-rankings', async (req, res) => {
+    try {
+        const { format, gender, ranking_type, limit = 50, page = 1 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const whereCondition = {};
+
+        if (format) {
+            whereCondition.format = format;
+        }
+        if (gender) {
+            whereCondition.gender = gender;
+        }
+        if (ranking_type) {
+            whereCondition.ranking_type = ranking_type;
+        }
+
+        const { count, rows } = await CricketTeamsRankings.findAndCountAll({
+            where: whereCondition,
+            order: [
+                ['format', 'ASC'],
+                ['position', 'ASC']
+            ],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: rows,
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(count / limit)
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * GET /cricket/teams-rankings/:format
+ * Get team rankings for a specific format (test, odi, t20)
+ * Query params: gender, ranking_type, limit
+ */
+router.get('/teams-rankings/:format', async (req, res) => {
+    try {
+        const { format } = req.params;
+        const { gender = 'men', ranking_type = 'icc', limit = 50 } = req.query;
+
+        if (!['test', 'odi', 't20'].includes(format)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid format. Must be test, odi, or t20'
+            });
+        }
+
+        const whereCondition = {
+            format: format,
+            gender: gender,
+            ranking_type: ranking_type
+        };
+
+        const rankings = await CricketTeamsRankings.findAll({
+            where: whereCondition,
+            order: [['position', 'ASC']],
+            limit: parseInt(limit)
+        });
+
+        return res.status(200).json({
+            success: true,
+            format: format.toUpperCase(),
+            gender: gender,
+            ranking_type: ranking_type,
+            data: rankings,
+            total: rankings.length
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * GET /cricket/teams-rankings/team/:team_name
+ * Search team rankings by team name
+ */
+router.get('/teams-rankings/team/:team_name', async (req, res) => {
+    try {
+        const { team_name } = req.params;
+
+        const rankings = await CricketTeamsRankings.findAll({
+            where: {
+                team_name: { [Op.like]: `%${team_name}%` }
+            },
+            order: [
                 ['format', 'ASC'],
                 ['position', 'ASC']
             ]

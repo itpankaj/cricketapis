@@ -1,9 +1,9 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../connection/connection');
 
-class CricketRankings extends Model {}
+class CricketTeamsRankings extends Model {}
 
-CricketRankings.init({
+CricketTeamsRankings.init({
     id: {
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
@@ -12,11 +12,6 @@ CricketRankings.init({
     ranking_id: {
         type: DataTypes.STRING(50),
         allowNull: false
-    },
-    category: {
-        type: DataTypes.ENUM('batting', 'bowling', 'allrounder'),
-        allowNull: false,
-        defaultValue: 'batting'
     },
     format: {
         type: DataTypes.ENUM('test', 'odi', 't20'),
@@ -36,20 +31,21 @@ CricketRankings.init({
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    player_name: {
+    team_name: {
         type: DataTypes.STRING(150),
         allowNull: false
     },
-    team: {
-        type: DataTypes.STRING(100),
-        allowNull: false
-    },
-    rating: {
+    matches: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0
     },
-    career_best_rating: {
+    points: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+    rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0
@@ -70,7 +66,7 @@ CricketRankings.init({
     }
 }, {
     sequelize,
-    tableName: 'cricket_rankings',
+    tableName: 'cricket_teams_rankings',
     timestamps: false,
     indexes: [
         {
@@ -80,11 +76,10 @@ CricketRankings.init({
             fields: [{ name: "id" }]
         },
         {
-            name: "unique_ranking",
+            name: "unique_team_ranking",
             unique: true,
             using: "BTREE",
             fields: [
-                { name: "category" },
                 { name: "format" },
                 { name: "gender" },
                 { name: "ranking_type" },
@@ -92,22 +87,9 @@ CricketRankings.init({
             ]
         },
         {
-            name: "idx_ranking_type",
-            using: "BTREE",
-            fields: [{ name: "ranking_type" }]
-        },
-        {
             name: "idx_ranking_id",
             using: "BTREE",
             fields: [{ name: "ranking_id" }]
-        },
-        {
-            name: "idx_category_format",
-            using: "BTREE",
-            fields: [
-                { name: "category" },
-                { name: "format" }
-            ]
         },
         {
             name: "idx_format",
@@ -118,8 +100,13 @@ CricketRankings.init({
             name: "idx_gender",
             using: "BTREE",
             fields: [{ name: "gender" }]
+        },
+        {
+            name: "idx_ranking_type",
+            using: "BTREE",
+            fields: [{ name: "ranking_type" }]
         }
     ]
 });
 
-module.exports = CricketRankings;
+module.exports = CricketTeamsRankings;
