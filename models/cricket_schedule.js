@@ -33,9 +33,15 @@ const CricketSchedule = sequelize.define('cricket_schedule', {
         type: DataTypes.STRING(255),
         allowNull: true
     },
+    // Use STRING to return datetime exactly as stored in DB (IST) without timezone conversion
     match_date: {
-        type: DataTypes.DATE,
-        allowNull: true
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        // Custom getter to format the raw datetime from MySQL
+        get() {
+            const rawValue = this.getDataValue('match_date');
+            return rawValue; // Return as-is from database
+        }
     },
     status: {
         type: DataTypes.ENUM('upcoming', 'live', 'completed'),
@@ -46,15 +52,14 @@ const CricketSchedule = sequelize.define('cricket_schedule', {
         type: DataTypes.TEXT,
         allowNull: true
     },
+    // These are metadata fields - keep as strings to avoid timezone issues
     created_at: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: DataTypes.NOW
+        type: DataTypes.STRING(50),
+        allowNull: true
     },
     updated_at: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: DataTypes.NOW
+        type: DataTypes.STRING(50),
+        allowNull: true
     }
 }, {
     sequelize,
