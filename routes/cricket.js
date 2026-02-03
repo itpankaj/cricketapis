@@ -270,10 +270,12 @@ router.get('/schedule/series/:series_id', async (req, res) => {
 /**
  * GET /cricket/points/:series_id
  * Get points table for a specific series
+ * Query params: group (optional) - filter by specific group
  */
 router.get('/points/:series_id', async (req, res) => {
     try {
         const { series_id } = req.params;
+        const { group } = req.query;
 
         // Get series info
         const series = await CricketSeries.findOne({
@@ -287,26 +289,80 @@ router.get('/points/:series_id', async (req, res) => {
             });
         }
 
+        // Build where condition
+        const whereCondition = { series_id: series_id };
+        if (group) {
+            whereCondition.group_name = group;
+        }
+
         const pointsTable = await CricketPointsTable.findAll({
-            where: { series_id: series_id },
+            where: whereCondition,
             order: [
+                ['group_name', 'ASC'],
+                ['position', 'ASC'],
                 ['points', 'DESC'],
                 ['net_run_rate', 'DESC']
             ]
         });
 
-        // Add position to each team
+        // Check if there are groups in this series
+        const groups = [...new Set(pointsTable.map(p => p.group_name).filter(g => g))];
+        const hasGroups = groups.length > 0;
+
+        if (hasGroups && !group) {
+            // Return data grouped by group_name
+            const groupedData = {};
+            groups.forEach(g => {
+                groupedData[g] = pointsTable
+                    .filter(p => p.group_name === g)
+                    .map((entry, index) => {
+                        const entryData = entry.toJSON();
+                        // Use stored position or calculate
+                        if (!entryData.position || entryData.position === 0) {
+                            entryData.position = index + 1;
+                        }
+                        return entryData;
+                    });
+            });
+
+            // Also include entries without group
+            const noGroupEntries = pointsTable.filter(p => !p.group_name);
+            if (noGroupEntries.length > 0) {
+                groupedData['_ungrouped'] = noGroupEntries.map((entry, index) => {
+                    const entryData = entry.toJSON();
+                    if (!entryData.position || entryData.position === 0) {
+                        entryData.position = index + 1;
+                    }
+                    return entryData;
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                series: series,
+                groups: groups,
+                data: groupedData,
+                total: pointsTable.length,
+                has_groups: true
+            });
+        }
+
+        // No groups or specific group requested - return flat list
         const dataWithPosition = pointsTable.map((entry, index) => {
             const entryData = entry.toJSON();
-            entryData.position = index + 1;
+            if (!entryData.position || entryData.position === 0) {
+                entryData.position = index + 1;
+            }
             return entryData;
         });
 
         return res.status(200).json({
             success: true,
             series: series,
+            groups: groups,
             data: dataWithPosition,
-            total: dataWithPosition.length
+            total: dataWithPosition.length,
+            has_groups: hasGroups
         });
 
     } catch (err) {

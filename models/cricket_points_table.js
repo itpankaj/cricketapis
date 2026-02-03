@@ -12,6 +12,11 @@ const CricketPointsTable = sequelize.define('cricket_points_table', {
         type: DataTypes.STRING(50),
         allowNull: false
     },
+    group_name: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        defaultValue: null
+    },
     team: {
         type: DataTypes.STRING(100),
         allowNull: false
@@ -51,6 +56,11 @@ const CricketPointsTable = sequelize.define('cricket_points_table', {
         allowNull: false,
         defaultValue: 0.000
     },
+    position: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
     created_at: {
         type: DataTypes.DATE,
         allowNull: true,
@@ -73,15 +83,20 @@ const CricketPointsTable = sequelize.define('cricket_points_table', {
             fields: [{ name: "id" }]
         },
         {
-            name: "unique_series_team",
+            name: "unique_series_group_team",
             unique: true,
             using: "BTREE",
-            fields: [{ name: "series_id" }, { name: "team" }]
+            fields: [{ name: "series_id" }, { name: "group_name" }, { name: "team" }]
         },
         {
             name: "idx_series_id",
             using: "BTREE",
             fields: [{ name: "series_id" }]
+        },
+        {
+            name: "idx_group_name",
+            using: "BTREE",
+            fields: [{ name: "group_name" }]
         }
     ]
 });
