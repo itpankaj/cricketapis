@@ -12,6 +12,7 @@ const PostPageViewMonth = require('../models/post_pageviews_month');
 const Posttags = require('../models/post_tags');
 const Tags = require('../models/tags');
 const PostCategories = require('../models/post_category');
+const PostFaqs = require('../models/post_faqs');
 
 router.get('/all', async (req, res) => {
 
@@ -466,6 +467,12 @@ router.get('/:slug', async (req, res) => {
                 },
                 {
                     model: PostFiles
+                },
+                {
+                    model: PostFaqs,
+                    attributes: ['id', 'question', 'answer', 'sort_order'],
+                    separate: true,
+                    order: [['sort_order', 'ASC']]
                 }
             ]
         });
