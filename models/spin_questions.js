@@ -12,6 +12,10 @@ const SpinQuestions = sequelize.define('spin_questions', {
         type: DataTypes.STRING(500),
         allowNull: false
     },
+    hint: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
     option_a: {
         type: DataTypes.STRING(255),
         allowNull: false

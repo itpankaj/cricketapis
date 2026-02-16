@@ -42,7 +42,7 @@ router.get('/config', async (req, res) => {
         const questionsCount = parseInt(settings.questions_count) || 3;
         const questions = await SpinQuestions.findAll({
             where: { is_active: 1 },
-            attributes: ['id', 'question', 'option_a', 'option_b', 'option_c', 'option_d'],
+            attributes: ['id', 'question', 'hint', 'option_a', 'option_b', 'option_c', 'option_d'],
             order: sequelize.random(),
             limit: questionsCount
         });
@@ -68,6 +68,7 @@ router.get('/config', async (req, res) => {
             questions: questions.map(q => ({
                 id: q.id,
                 question: q.question,
+                hint: q.hint || null,
                 options: [
                     { key: 'a', text: q.option_a },
                     { key: 'b', text: q.option_b },
@@ -267,6 +268,57 @@ router.post('/check-eligibility', async (req, res) => {
 
     } catch (error) {
         console.error('Eligibility check error:', error.message);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+/**
+ * GET /spin-win/winners
+ * Get announced winners (public endpoint for frontend)
+ */
+router.get('/winners', async (req, res) => {
+    try {
+        const month = req.query.month;
+        
+        let query = "SELECT name, prize_label, month, position FROM spin_winners WHERE announced = 1";
+        const replacements = [];
+        
+        if (month) {
+            query += " AND month = ?";
+            replacements.push(month);
+        }
+        
+        query += " ORDER BY month DESC, position ASC";
+        
+        const winners = await sequelize.query(query, {
+            replacements,
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        // Group by month
+        const grouped = {};
+        winners.forEach(w => {
+            if (!grouped[w.month]) {
+                grouped[w.month] = {
+                    month: w.month,
+                    monthLabel: new Date(w.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+                    winners: []
+                };
+            }
+            grouped[w.month].winners.push({
+                position: w.position,
+                name: w.name,
+                prize: w.prize_label
+            });
+        });
+
+        return res.status(200).json({
+            success: true,
+            months: Object.values(grouped)
+        });
+
+    } catch (error) {
+        console.error('Winners fetch error:', error.message);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 });
