@@ -129,38 +129,8 @@ router.post('/play', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Spin & Win is currently disabled' });
         }
 
-        // Check cooldown
-        const cooldownHours = parseInt(settings.cooldown_hours) || 24;
-        const maxSpins = parseInt(settings.max_spins_per_email) || 1;
-
-        if (maxSpins > 0) {
-            // Check total lifetime spins
-            const totalSpins = await SpinEntries.count({
-                where: { email: email.trim().toLowerCase() }
-            });
-            if (totalSpins >= maxSpins) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'You have already used all your spins. Thank you for playing!'
-                });
-            }
-        }
-
-        if (cooldownHours > 0) {
-            const since = new Date(Date.now() - cooldownHours * 60 * 60 * 1000);
-            const recentCount = await SpinEntries.count({
-                where: {
-                    email: email.trim().toLowerCase(),
-                    created_at: { [require('sequelize').Op.gte]: since }
-                }
-            });
-            if (recentCount > 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Please wait ${cooldownHours} hours before playing again`
-                });
-            }
-        }
+        // No restrictions - users can play unlimited times
+        // Entries are still recorded for lottery selection
 
         // Verify answers and calculate score
         const questionIds = answers.map(a => a.question_id);
@@ -292,47 +262,7 @@ router.post('/check-eligibility', async (req, res) => {
             return res.status(400).json({ success: false, eligible: false, message: 'Email required' });
         }
 
-        const settingsRows = await sequelize.query(
-            "SELECT setting_key, setting_value FROM spin_settings",
-            { type: sequelize.QueryTypes.SELECT }
-        );
-        const settings = {};
-        settingsRows.forEach(row => {
-            settings[row.setting_key] = row.setting_value;
-        });
-
-        const maxSpins = parseInt(settings.max_spins_per_email) || 1;
-        const cooldownHours = parseInt(settings.cooldown_hours) || 24;
-        const cleanEmail = email.trim().toLowerCase();
-
-        if (maxSpins > 0) {
-            const totalSpins = await SpinEntries.count({ where: { email: cleanEmail } });
-            if (totalSpins >= maxSpins) {
-                return res.status(200).json({
-                    success: true,
-                    eligible: false,
-                    message: 'You have already used all your spins'
-                });
-            }
-        }
-
-        if (cooldownHours > 0) {
-            const since = new Date(Date.now() - cooldownHours * 60 * 60 * 1000);
-            const recentCount = await SpinEntries.count({
-                where: {
-                    email: cleanEmail,
-                    created_at: { [require('sequelize').Op.gte]: since }
-                }
-            });
-            if (recentCount > 0) {
-                return res.status(200).json({
-                    success: true,
-                    eligible: false,
-                    message: `Please wait ${cooldownHours} hours before playing again`
-                });
-            }
-        }
-
+        // No restrictions - always eligible, unlimited plays allowed
         return res.status(200).json({ success: true, eligible: true });
 
     } catch (error) {
