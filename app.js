@@ -22,6 +22,7 @@ var menuRoute = require('./routes/menu');
 var author = require('./routes/author');
 var adspace = require('./routes/adspace');
 var cricket = require('./routes/cricket');
+var spinwin = require('./routes/spinwin');
 
 
 require('./passport');
@@ -74,6 +75,7 @@ app.use('/menu',menuRoute);
 app.use('/author',author);
 app.use('/ad-space',adspace);
 app.use('/cricket',cricket);
+app.use('/spin-win',spinwin);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
