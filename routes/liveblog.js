@@ -214,21 +214,31 @@ router.get('/all', async (req, res) => {
 });
 
 /**
- * GET /liveblog/slug/:slug
+ * GET /liveblog/slug/:slug(*)
  * Get a single live blog by slug with entries and JSON-LD
  * This is the main endpoint for the frontend live blog page
+ * Supports slugs with slashes (e.g. "live/india-vs-...")
  */
-router.get('/slug/:slug', async (req, res) => {
+router.get('/slug/*', async (req, res) => {
     try {
-        const slug = req.params.slug;
+        const rawSlug = (req.params[0] || '').replace(/^\/+|\/+$/g, '');
 
-        const blog = await LiveBlogs.findOne({
-            where: { title_slug: slug },
-            include: [
-                { model: users, attributes: ['id', 'username', 'first_name', 'last_name', 'slug', 'avatar'] },
-                { model: categories, attributes: ['id', 'name', 'name_slug'] }
-            ]
-        });
+        // Try exact match first, then with/without 'live/' prefix
+        const slugsToTry = [rawSlug];
+        if (!rawSlug.startsWith('live/')) slugsToTry.push('live/' + rawSlug);
+        if (rawSlug.startsWith('live/')) slugsToTry.push(rawSlug.replace(/^live\//, ''));
+
+        let blog = null;
+        for (const trySlug of slugsToTry) {
+            blog = await LiveBlogs.findOne({
+                where: { title_slug: trySlug },
+                include: [
+                    { model: users, attributes: ['id', 'username', 'first_name', 'last_name', 'slug', 'avatar'] },
+                    { model: categories, attributes: ['id', 'name', 'name_slug'] }
+                ]
+            });
+            if (blog) break;
+        }
 
         if (!blog) {
             return res.status(404).json({ success: false, error: 'Live blog not found' });
