@@ -23,6 +23,7 @@ var author = require('./routes/author');
 var adspace = require('./routes/adspace');
 var cricket = require('./routes/cricket');
 var spinwin = require('./routes/spinwin');
+var liveblog = require('./routes/liveblog');
 
 
 require('./passport');
@@ -76,6 +77,7 @@ app.use('/author',author);
 app.use('/ad-space',adspace);
 app.use('/cricket',cricket);
 app.use('/spin-win',spinwin);
+app.use('/liveblog',liveblog);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
