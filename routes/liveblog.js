@@ -303,6 +303,11 @@ router.get('/slug/*', async (req, res) => {
  */
 router.get('/:id/entries', async (req, res) => {
     try {
+        // Prevent caching for polling endpoints
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Surrogate-Control', 'no-store');
         const blogId = parseInt(req.params.id);
         const since = req.query.since; // ISO timestamp
         const keyEventsOnly = req.query.key_events === '1';
