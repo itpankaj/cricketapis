@@ -299,7 +299,8 @@ router.get('/slug/*', async (req, res) => {
 /**
  * GET /liveblog/:id/entries
  * Get entries for a live blog (for polling/real-time updates)
- * Supports ?since=timestamp to get only new entries
+ * Supports ?after_id=N to get only entries with id > N (preferred for polling)
+ * Also supports ?since=timestamp for backward compatibility
  */
 router.get('/:id/entries', async (req, res) => {
     try {
@@ -309,13 +310,16 @@ router.get('/:id/entries', async (req, res) => {
         res.setHeader('Expires', '0');
         res.setHeader('Surrogate-Control', 'no-store');
         const blogId = parseInt(req.params.id);
-        const since = req.query.since; // ISO timestamp
+        const afterId = req.query.after_id ? parseInt(req.query.after_id) : null;
+        const since = req.query.since; // ISO timestamp (backward compat)
         const keyEventsOnly = req.query.key_events === '1';
         const limit = Math.min(parseInt(req.query.limit) || 50, 200);
 
         let whereCondition = { live_blog_id: blogId };
 
-        if (since) {
+        if (afterId) {
+            whereCondition.id = { [Op.gt]: afterId };
+        } else if (since) {
             whereCondition.created_at = { [Op.gt]: new Date(since) };
         }
 
@@ -332,7 +336,7 @@ router.get('/:id/entries', async (req, res) => {
             limit: limit
         });
 
-        // Get blog updated_at for client-side cache check
+        // Get blog metadata for client
         const blog = await LiveBlogs.findByPk(blogId, {
             attributes: ['id', 'status', 'match_info', 'updated_at', 'entry_count']
         });
