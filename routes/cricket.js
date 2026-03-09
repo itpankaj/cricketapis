@@ -5,6 +5,7 @@ const CricketSchedule = require('../models/cricket_schedule');
 const CricketPointsTable = require('../models/cricket_points_table');
 const CricketRankings = require('../models/cricket_rankings');
 const CricketTeamsRankings = require('../models/cricket_teams_rankings');
+const CricketHeadToHead = require('../models/cricket_head_to_head');
 const { Op } = require('sequelize');
 
 /**
@@ -669,6 +670,224 @@ router.get('/teams-rankings/team/:team_name', async (req, res) => {
             success: true,
             data: rankings,
             total: rankings.length
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+// ==================== HEAD TO HEAD ENDPOINTS ====================
+
+/**
+ * GET /cricket/head-to-head
+ * Get all head-to-head records with optional filters
+ * Query params: format, team, limit, page
+ */
+router.get('/head-to-head', async (req, res) => {
+    try {
+        const { format, team, limit = 50, page = 1 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const whereCondition = {};
+
+        if (format) {
+            whereCondition.format = format;
+        }
+        if (team) {
+            whereCondition[Op.or] = [
+                { team1: { [Op.like]: `%${team}%` } },
+                { team2: { [Op.like]: `%${team}%` } }
+            ];
+        }
+
+        whereCondition.is_active = 1;
+
+        const { count, rows } = await CricketHeadToHead.findAndCountAll({
+            where: whereCondition,
+            order: [['total_matches', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: rows,
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(count / limit)
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * GET /cricket/head-to-head/:format
+ * Get H2H records for a specific format (test, odi, t20i)
+ * Query params: team, limit, page
+ */
+router.get('/head-to-head/:format', async (req, res) => {
+    try {
+        const { format } = req.params;
+        const { team, limit = 50, page = 1 } = req.query;
+        const offset = (page - 1) * limit;
+
+        if (!['test', 'odi', 't20i', 'all'].includes(format)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid format. Must be test, odi, t20i, or all'
+            });
+        }
+
+        const whereCondition = {
+            format: format,
+            is_active: 1
+        };
+
+        if (team) {
+            whereCondition[Op.or] = [
+                { team1: { [Op.like]: `%${team}%` } },
+                { team2: { [Op.like]: `%${team}%` } }
+            ];
+        }
+
+        const { count, rows } = await CricketHeadToHead.findAndCountAll({
+            where: whereCondition,
+            order: [['total_matches', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        return res.status(200).json({
+            success: true,
+            format: format,
+            data: rows,
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(count / limit)
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * GET /cricket/head-to-head/teams/:team1/:team2
+ * Get H2H record between two specific teams
+ * Query params: format (optional)
+ */
+router.get('/head-to-head/teams/:team1/:team2', async (req, res) => {
+    try {
+        const { team1, team2 } = req.params;
+        const { format } = req.query;
+
+        const whereCondition = {
+            is_active: 1,
+            [Op.or]: [
+                { team1: team1, team2: team2 },
+                { team1: team2, team2: team1 }
+            ]
+        };
+
+        if (format) {
+            whereCondition.format = format;
+        }
+
+        const records = await CricketHeadToHead.findAll({
+            where: whereCondition,
+            order: [['format', 'ASC']]
+        });
+
+        if (records.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: `No head-to-head records found for ${team1} vs ${team2}`
+            });
+        }
+
+        // Normalize: ensure team1 from URL param is always shown as team1
+        const normalizedRecords = records.map(record => {
+            const data = record.toJSON();
+            if (data.team1 !== team1) {
+                // Swap teams and wins
+                const tmp = data.team1;
+                data.team1 = data.team2;
+                data.team2 = tmp;
+                const tmpW = data.team1_wins;
+                data.team1_wins = data.team2_wins;
+                data.team2_wins = tmpW;
+            }
+            return data;
+        });
+
+        return res.status(200).json({
+            success: true,
+            team1: team1,
+            team2: team2,
+            data: normalizedRecords,
+            total: normalizedRecords.length
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+/**
+ * GET /cricket/head-to-head/team/:team_name
+ * Get all H2H records for a specific team
+ * Query params: format (optional), limit, page
+ */
+router.get('/head-to-head/team/:team_name', async (req, res) => {
+    try {
+        const { team_name } = req.params;
+        const { format, limit = 50, page = 1 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const whereCondition = {
+            is_active: 1,
+            [Op.or]: [
+                { team1: { [Op.like]: `%${team_name}%` } },
+                { team2: { [Op.like]: `%${team_name}%` } }
+            ]
+        };
+
+        if (format) {
+            whereCondition.format = format;
+        }
+
+        const { count, rows } = await CricketHeadToHead.findAndCountAll({
+            where: whereCondition,
+            order: [['total_matches', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        return res.status(200).json({
+            success: true,
+            team: team_name,
+            data: rows,
+            total: count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(count / limit)
         });
 
     } catch (err) {
